@@ -1,21 +1,32 @@
-// FANORA service worker — v1
+// FANORA service worker — v2 (network-first)
 //
 // Safety rules:
-//  - Only public, idempotent GET requests are cached.
-//  - Private content URLs (media streams, signed URLs) are NEVER cached.
-//  - The app shell ('/', '/explore') works offline using cache-first.
+//  - Only public, idempotent GET requests hit the cache.
+//  - Private content URLs (media streams, signed URLs, /admin, /api, ...)
+//    are NEVER cached.
+//  - Navigation is network-first: the live site always wins; the cache only
+//    acts as an OFFLINE fallback. A stale cache can therefore never break the
+//    site (previous releases cached first-visit shells and could show
+//    ERR_FAILED after rebuilds).
+//  - On activation every non-current cache from older SW versions is purged.
 
-const CACHE = 'fanora-v1';
+const CACHE = 'fanora-v2';
+
 const PRIVATE_PATTERNS = [/\/media\//, /[?&](token|signature)=/, /\/admin\//, /\/creator\/dashboard/, /\/subscriptions/, /\/settings/, /\/profile/, /\/notifications/, /\/feed/, /\/api\//];
 
 self.addEventListener('install', function () {
     self.skipWaiting();
-    self.caches.delete(CACHE);
-    self.registration.update();
 });
 
-self.addEventListener('activate', function () {
-    self.clients.claim();
+self.addEventListener('activate', function (event) {
+    event.waitUntil(
+        caches
+            .keys()
+            .then((names) =>
+                Promise.all(names.map((name) => (name !== CACHE ? caches.delete(name) : Promise.resolve())))
+            )
+            .then(() => self.clients.claim())
+    );
 });
 
 self.addEventListener('fetch', function (event) {
@@ -27,56 +38,52 @@ self.addEventListener('fetch', function (event) {
 
     const url = new URL(req.url);
 
+    if (url.origin !== self.location.origin) {
+        return;
+    }
+
     // Never touch private/signed URLs or API calls.
     if (PRIVATE_PATTERNS.some((re) => re.test(req.url))) {
         return;
     }
 
-    // Offline: serve cached app shell for navigation requests.
+    // Navigation: network-first, cached HTML as offline fallback.
     if (req.mode === 'navigate') {
         event.respondWith(
-            caches.open(CACHE).then((cache) =>
-                cache.match(req).then((cached) =>
-                    cached && !shouldRevalidate(url)
-                        ? cached
-                        : fetch(req)
-                              .then((response) => {
-                                  if (response.ok && (response.headers.get('content-type') || '').includes('text/html')) {
-                                      cache.put(req, response.clone());
-                                  }
+            fetch(req)
+                .then((response) => {
+                    if (response.ok && (response.headers.get('content-type') || '').includes('text/html')) {
+                        const clone = response.clone();
+                        caches.open(CACHE).then((cache) => cache.put(req, clone));
+                    }
 
-                                  return response;
-                              })
-                              .catch(() => cached || Response.error())
+                    return response;
+                })
+                .catch(() =>
+                    caches
+                        .open(CACHE)
+                        .then((cache) => cache.match(req))
+                        .then((cached) => cached || Response.error())
                 )
-            )
         );
 
         return;
     }
 
-    // Assets: network-first with stale fallback is fine, but keep it simple:
-    // try network, fall back to cache when offline.
+    // Other GETs: network-first, cache successful responses, cache as fallback when offline.
     event.respondWith(
         fetch(req)
             .then((response) => {
                 if (response.ok) {
-                    const cloned = response.clone();
-                    caches.open(CACHE).then((cache) => cache.put(req, cloned));
+                    const clone = response.clone();
+                    caches.open(CACHE).then((cache) => cache.put(req, clone));
                 }
 
                 return response;
             })
-            .catch(() =>
-                caches.open(CACHE).then((cache) => cache.match(req))
-            )
+            .catch(() => caches.open(CACHE).then((cache) => cache.match(req)))
     );
 });
-
-function shouldRevalidate(url) {
-    // Revalidate always fresh shell except for the public landing pages.
-    return !(url.path === '/' || url.path === '/explore' || url.path.startsWith('/explore?'));
-}
 
 self.addEventListener('message', function (event) {
     if (event.data === 'SKIP_WAITING') {

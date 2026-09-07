@@ -10,7 +10,9 @@ services:
       # Code is baked into the image (Dockerfile COPY . .). Only persistent
       # storage is bind-mounted.
       # NOTE: bind-mounting the full project (.:/var/www/html) over the 9p
-      # filesystem is unusably slow on Docker Desktop; keep it out.
+      # filesystem is unusably slow on Docker Desktop; keep it out. nginx also
+      # has its own baked image (docker/nginx.Dockerfile) so no host mounts are
+      # involved at all (9p mounts can go ENODEV after a Docker Desktop restart).
       - ./docker/storage:/var/www/html/storage/app/private
     environment:
       - APP_ENV=${APP_ENV:-local}
@@ -42,13 +44,13 @@ services:
       php-fpm"
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: docker/nginx.Dockerfile
+    image: fanora-nginx
     container_name: fanora-nginx
     ports:
       - "8080:80"
-    volumes:
-      - ./public:/var/www/html/public:ro
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
     networks:
