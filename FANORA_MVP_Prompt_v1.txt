@@ -1,0 +1,1133 @@
+PROMPT — FANORA MVP v1.0
+Plataforma de assinatura de conteúdo para creators
+
+OBJETIVO
+
+Desenvolver rapidamente um MVP funcional da FANORA, uma plataforma própria de creator economy baseada em perfis de criadores, conteúdo exclusivo e assinaturas recorrentes.
+
+A primeira versão deve ser simples, rápida, responsiva, segura e preparada para evolução futura.
+
+IMPORTANTE:
+- Não tentar implementar todos os recursos de uma plataforma madura.
+- Priorizar o fluxo essencial: cadastro → perfil do creator → publicação → assinatura → acesso ao conteúdo exclusivo.
+- O projeto deve ser estruturado para receber novos módulos posteriormente.
+- A plataforma deve operar somente com usuários adultos e creators devidamente verificados.
+- Não permitir conteúdo envolvendo menores, exploração sexual, violência sexual, conteúdo ilegal ou qualquer material proibido pela legislação aplicável.
+- Criar mecanismos básicos de denúncia, bloqueio e moderação desde o MVP.
+
+==================================================
+1. IDENTIDADE DO PRODUTO
+==================================================
+
+Nome:
+FANORA
+
+Slogan:
+Seu conteúdo. Seu público. Seu espaço.
+
+Posicionamento:
+Plataforma de assinatura para creators, permitindo que criadores construam audiência, publiquem conteúdo exclusivo e monetizem diretamente seus seguidores.
+
+Identidade visual:
+- Premium
+- Moderna
+- Minimalista
+- Mobile-first
+- Tecnológica
+- Inclusiva para público masculino e feminino
+
+Paleta sugerida:
+- Preto: #080808
+- Branco: #FFFFFF
+- Magenta: #E91E63
+- Roxo: #7C3AED
+- Cinza para elementos secundários
+
+Criar logotipo textual FANORA e ícone independente baseado em um símbolo abstrato que combine as ideias de fã, conexão e conteúdo, evitando símbolos sexualmente explícitos.
+
+==================================================
+2. STACK TECNOLÓGICA
+==================================================
+
+Backend:
+- PHP 8.3+
+- Laravel
+- Laravel Blade
+- Laravel Eloquent
+
+Frontend:
+- HTML5
+- Tailwind CSS
+- JavaScript
+- Alpine.js quando útil
+
+Banco:
+- MySQL 8+
+
+Infraestrutura preparada para:
+- Redis
+- armazenamento S3-compatible
+- filas Laravel
+- CDN
+- Docker
+
+PWA:
+- manifest.json
+- service worker
+- instalação no celular
+- ícones
+- splash/configuração adequada
+
+Arquitetura:
+- MVC
+- Services para regras de negócio
+- Policies para autorização
+- Form Requests para validação
+- migrations
+- seeders
+- factories
+- API preparada para futura expansão
+
+==================================================
+3. TIPOS DE USUÁRIO
+==================================================
+
+ADMINISTRADOR
+- gerencia usuários
+- gerencia creators
+- analisa denúncias
+- modera conteúdo
+- acompanha assinaturas
+- configura categorias
+- acompanha métricas básicas
+
+CREATOR
+- possui perfil público
+- publica conteúdo
+- define preço da assinatura
+- acompanha assinantes
+- acompanha receita
+- solicita saque quando habilitado
+
+ASSINANTE
+- cria conta
+- explora creators
+- segue creators
+- assina creators
+- acessa conteúdo permitido
+- gerencia assinaturas
+- denuncia conteúdo
+- bloqueia creators/usuários
+
+==================================================
+4. AUTENTICAÇÃO
+==================================================
+
+Implementar:
+- cadastro
+- login
+- logout
+- recuperação de senha
+- redefinição de senha
+- confirmação de e-mail
+- sessão segura
+- proteção CSRF
+- rate limiting
+- validação de dados
+
+No cadastro exigir:
+- nome
+- username
+- e-mail
+- senha
+- data de nascimento ou confirmação legal de maioridade
+- aceite dos Termos de Uso
+- aceite da Política de Privacidade
+
+Não permitir cadastro de menores.
+
+==================================================
+5. PERFIL PÚBLICO DO CREATOR
+==================================================
+
+URL:
+
+/creator/{username}
+
+Exibir:
+- foto de perfil
+- capa
+- nome
+- username
+- biografia
+- categoria
+- quantidade de seguidores
+- preço mensal
+- botão Assinar
+- botão Seguir
+- publicações públicas
+- conteúdo exclusivo bloqueado
+
+Exemplo:
+
+FANORA
+@creator
+
+"Minha página oficial na FANORA."
+
+[ASSINAR — R$ 19,90/mês]
+
+Criar URLs amigáveis e preparadas para SEO.
+
+==================================================
+6. EXPLORAR CREATORS
+==================================================
+
+Página:
+
+/explore
+
+Recursos:
+- busca por nome
+- busca por username
+- categorias
+- creators em destaque
+- creators recentes
+- creators populares
+
+Card:
+- avatar
+- nome
+- categoria
+- descrição curta
+- preço
+- botão visualizar
+
+Criar paginação.
+
+==================================================
+7. FEED
+==================================================
+
+Página:
+
+/feed
+
+Exibir publicações dos creators seguidos/assinados.
+
+Tipos de publicação:
+- texto
+- imagem
+- vídeo
+
+Status:
+- público
+- exclusivo para assinantes
+- conteúdo premium pago, deixar estrutura preparada para futura implementação
+
+Publicação exclusiva deve aparecer bloqueada para quem não possui assinatura.
+
+Exemplo:
+
+🔒 Conteúdo exclusivo
+
+"Assine para desbloquear este conteúdo."
+
+[ASSINAR]
+
+==================================================
+8. PUBLICAÇÕES DO CREATOR
+==================================================
+
+Creator poderá:
+- criar publicação
+- adicionar texto
+- enviar imagem
+- enviar vídeo
+- selecionar público
+- publicar
+- editar
+- excluir
+
+Tipos:
+PUBLIC
+SUBSCRIBERS_ONLY
+
+Criar validação de:
+- extensão
+- MIME type
+- tamanho
+- nome seguro
+- armazenamento seguro
+
+Nunca expor diretamente caminhos internos de arquivos privados.
+
+==================================================
+9. ASSINATURAS
+==================================================
+
+Implementar o modelo de assinatura mensal.
+
+Creator define:
+- preço mensal
+
+Sugestão inicial:
+R$ 9,90
+R$ 19,90
+R$ 29,90
+
+O valor deve ser configurável pelo administrador e pelo creator dentro das regras comerciais da plataforma.
+
+Criar tabela de assinaturas contendo:
+- user_id
+- creator_id
+- valor
+- status
+- início
+- vencimento
+- cancelamento
+- gateway_transaction_id
+
+Status:
+- active
+- pending
+- cancelled
+- expired
+
+==================================================
+10. PAGAMENTO
+==================================================
+
+IMPORTANTE:
+
+Não criar um gateway fictício nem simular pagamentos como se fossem reais.
+
+Criar uma camada de abstração:
+
+PaymentGatewayInterface
+
+Exemplo:
+
+PaymentGatewayInterface
+├── createSubscription()
+├── cancelSubscription()
+├── getSubscription()
+└── handleWebhook()
+
+Criar implementação inicial preparada para integração com um provedor compatível com o modelo de negócio e conteúdo da plataforma.
+
+Deixar claramente separado:
+- ambiente sandbox
+- produção
+
+Criar webhooks para atualização de status.
+
+Toda alteração financeira deve possuir registro de auditoria.
+
+==================================================
+11. MODELO FINANCEIRO
+==================================================
+
+Criar estrutura para:
+
+- valor bruto
+- comissão FANORA
+- valor do creator
+- taxa do gateway
+- valor líquido
+- status da transação
+
+Exemplo conceitual:
+
+Assinatura:
+R$ 19,90
+
+Comissão FANORA:
+20%
+
+Receita bruta FANORA:
+R$ 3,98
+
+Creator:
+valor restante após as regras e custos aplicáveis.
+
+IMPORTANTE:
+Os percentuais devem ser configuráveis e não ficar hardcoded.
+
+==================================================
+12. DASHBOARD DO CREATOR
+==================================================
+
+Página:
+
+/creator/dashboard
+
+Cards:
+
+- Assinantes
+- Assinantes ativos
+- Receita bruta
+- Receita líquida
+- Publicações
+- Crescimento
+
+Lista:
+- últimas assinaturas
+- últimas publicações
+- últimas transações
+
+Não é necessário criar gráficos complexos no MVP.
+
+==================================================
+13. DASHBOARD ADMINISTRATIVO
+==================================================
+
+Página:
+
+/admin
+
+Cards:
+- usuários
+- creators
+- assinaturas ativas
+- receita
+- publicações
+- denúncias pendentes
+
+Tabelas:
+- usuários recentes
+- creators recentes
+- transações recentes
+- denúncias recentes
+
+Ações:
+- ativar/desativar usuário
+- verificar creator
+- suspender conta
+- remover conteúdo
+- analisar denúncia
+
+==================================================
+14. MODERAÇÃO
+==================================================
+
+Criar sistema básico de denúncia.
+
+Qualquer usuário poderá denunciar:
+- publicação
+- creator
+- usuário
+
+Motivos:
+- conteúdo ilegal
+- spam
+- fraude
+- assédio
+- violação de direitos autorais
+- conteúdo envolvendo menor
+- outro
+
+Criar:
+
+/reports
+
+No admin:
+- visualizar denúncia
+- alterar status
+- adicionar observação
+- tomar ação
+
+Status:
+- pending
+- reviewing
+- resolved
+- rejected
+
+==================================================
+15. BLOQUEIO
+==================================================
+
+Permitir bloquear usuário/creator.
+
+Quando bloqueado:
+- impedir interação
+- ocultar conteúdo quando apropriado
+- impedir mensagens futuras caso mensagens sejam adicionadas posteriormente
+
+Criar tabela:
+
+blocks
+- blocker_id
+- blocked_id
+- created_at
+
+==================================================
+16. VERIFICAÇÃO DE CREATOR
+==================================================
+
+O creator deve passar por processo de verificação antes de monetizar.
+
+MVP:
+- status de verificação
+- envio dos dados/documentos exigidos pelo administrador
+- aprovação/reprovação
+- motivo da reprovação
+- registro de auditoria
+
+Status:
+- pending
+- approved
+- rejected
+
+Não permitir monetização enquanto o creator não estiver aprovado.
+
+A implementação deve respeitar LGPD e minimizar a retenção de documentos sensíveis.
+
+==================================================
+17. SEGURANÇA
+==================================================
+
+Implementar obrigatoriamente:
+
+- CSRF
+- XSS protection
+- SQL injection protection via Eloquent/Query Builder
+- validação server-side
+- autorização via Policies
+- rate limiting
+- controle de upload
+- nomes de arquivos aleatórios
+- armazenamento privado
+- URLs temporárias para arquivos privados
+- logs
+- auditoria
+- proteção contra acesso horizontal
+- sanitização de conteúdo
+- sessões seguras
+- headers de segurança
+- HTTPS em produção
+
+Nunca confiar apenas na validação JavaScript.
+
+==================================================
+18. LGPD E PRIVACIDADE
+==================================================
+
+Criar:
+- Termos de Uso
+- Política de Privacidade
+- Política de Conteúdo
+- Política de Cookies quando aplicável
+- página de contato
+- mecanismo para solicitação de exclusão de conta
+- exportação de dados quando aplicável
+- registro de consentimentos
+
+Não armazenar dados desnecessários.
+
+==================================================
+19. SEO
+==================================================
+
+Implementar:
+
+- title dinâmico
+- meta description
+- canonical
+- Open Graph
+- Twitter/X cards
+- sitemap.xml
+- robots.txt
+- URLs amigáveis
+- headings corretos
+- Schema.org quando apropriado
+
+Páginas públicas:
+- home
+- explore
+- creator profiles
+- categorias
+
+Conteúdo adulto deve respeitar as políticas dos mecanismos de busca, incluindo requisitos de classificação e indexação.
+
+==================================================
+20. RESPONSIVIDADE
+==================================================
+
+Prioridade:
+
+1. Android
+2. iPhone
+3. Desktop
+
+Criar interface mobile-first.
+
+Bottom navigation no celular:
+
+Home
+Explorar
+Assinaturas
+Notificações
+Perfil
+
+Desktop:
+sidebar ou navbar responsiva.
+
+==================================================
+21. PWA
+==================================================
+
+Criar:
+
+manifest.json
+
+Nome:
+FANORA
+
+Short name:
+FANORA
+
+Descrição:
+Plataforma de creators e conteúdo exclusivo.
+
+Implementar:
+- service worker
+- cache básico
+- instalação
+- ícones
+- splash
+- estratégia offline apenas para páginas públicas e shell da aplicação
+
+Nunca armazenar conteúdo privado em cache público.
+
+==================================================
+22. BANCO DE DADOS
+==================================================
+
+Criar migrations para:
+
+users
+profiles
+creator_profiles
+categories
+category_creator
+posts
+post_media
+follows
+subscriptions
+subscription_transactions
+payment_transactions
+creator_payouts
+reports
+blocks
+notifications
+consents
+creator_verifications
+audit_logs
+
+Criar índices para:
+- username
+- e-mail
+- creator_id
+- user_id
+- status
+- created_at
+
+Usar foreign keys e constraints adequadamente.
+
+==================================================
+23. NOTIFICAÇÕES
+==================================================
+
+MVP:
+
+- nova assinatura
+- assinatura cancelada
+- creator aprovado
+- denúncia atualizada
+- publicação criada
+
+Começar com notificações internas.
+
+Preparar arquitetura para:
+- e-mail
+- push notification
+- WhatsApp/SMS futuramente
+
+==================================================
+24. ADMINISTRAÇÃO DE CATEGORIAS
+==================================================
+
+Admin poderá:
+- criar categoria
+- editar
+- excluir
+- ativar/desativar
+
+Exemplos:
+- Lifestyle
+- Fitness
+- Moda
+- Música
+- Gaming
+- Creator
+- Conteúdo exclusivo
+
+Evitar categorias que incentivem conteúdo ilegal.
+
+==================================================
+25. PÁGINAS DO MVP
+==================================================
+
+Criar:
+
+/
+ /explore
+ /login
+ /register
+ /forgot-password
+ /reset-password
+ /terms
+ /privacy
+ /content-policy
+ /contact
+ /creator/{username}
+ /feed
+ /subscriptions
+ /notifications
+ /profile
+ /settings
+ /creator/dashboard
+ /creator/posts
+ /creator/subscribers
+ /creator/earnings
+ /creator/verification
+ /admin
+ /admin/users
+ /admin/creators
+ /admin/posts
+ /admin/subscriptions
+ /admin/transactions
+ /admin/reports
+ /admin/categories
+
+==================================================
+26. COMPONENTES REUTILIZÁVEIS
+==================================================
+
+Criar componentes Blade reutilizáveis:
+
+- Button
+- Input
+- Modal
+- Avatar
+- CreatorCard
+- PostCard
+- SubscriptionCard
+- Alert
+- Badge
+- Pagination
+- Dropdown
+- Navbar
+- Sidebar
+- BottomNavigation
+- EmptyState
+- LoadingState
+
+==================================================
+27. UX
+==================================================
+
+A experiência deve ser simples.
+
+Fluxo principal:
+
+HOME
+↓
+EXPLORAR
+↓
+CREATOR
+↓
+ASSINAR
+↓
+PAGAMENTO
+↓
+CONTEÚDO EXCLUSIVO
+
+Reduzir o número de cliques.
+
+Criar CTA claros:
+
+"Explorar creators"
+
+"Assinar"
+
+"Criar meu perfil"
+
+==================================================
+28. PERFORMANCE
+==================================================
+
+Implementar:
+
+- lazy loading
+- paginação
+- otimização de imagens
+- thumbnails
+- cache
+- eager loading adequado
+- índices MySQL
+- compressão HTTP
+- assets minificados em produção
+
+Não carregar vídeos completos no feed.
+
+Usar thumbnails e streaming/download controlado conforme a infraestrutura.
+
+==================================================
+29. TESTES
+==================================================
+
+Criar testes para:
+
+- cadastro
+- login
+- autorização
+- criação de perfil
+- criação de publicação
+- publicação privada
+- seguir creator
+- assinatura
+- acesso ao conteúdo exclusivo
+- denúncia
+- bloqueio
+- permissões administrativas
+
+==================================================
+30. DADOS DE DEMONSTRAÇÃO
+==================================================
+
+Criar seeders com:
+
+- administrador
+- creators de demonstração
+- usuários de demonstração
+- categorias
+- publicações
+- assinaturas fictícias somente em ambiente local
+
+Nunca misturar dados de demonstração com produção.
+
+==================================================
+31. VARIÁVEIS DE AMBIENTE
+==================================================
+
+Criar .env.example contendo:
+
+APP_NAME=FANORA
+APP_ENV=local
+APP_KEY=
+APP_URL=
+
+DB_CONNECTION=mysql
+DB_HOST=
+DB_PORT=
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+
+CACHE_STORE=
+QUEUE_CONNECTION=
+
+FILESYSTEM_DISK=
+
+PAYMENT_PROVIDER=
+PAYMENT_PUBLIC_KEY=
+PAYMENT_SECRET_KEY=
+PAYMENT_WEBHOOK_SECRET=
+
+MAIL_MAILER=
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+==================================================
+32. ESTRUTURA DO PROJETO
+==================================================
+
+Organizar:
+
+app/
+├── Http/
+├── Models/
+├── Services/
+├── Policies/
+├── Notifications/
+├── Jobs/
+└── Providers/
+
+database/
+├── migrations/
+├── factories/
+└── seeders/
+
+resources/
+├── views/
+├── css/
+└── js/
+
+routes/
+├── web.php
+└── api.php
+
+public/
+├── icons/
+└── manifest.json
+
+tests/
+├── Feature/
+└── Unit/
+
+==================================================
+33. API FUTURA
+==================================================
+
+Criar endpoints iniciais bem estruturados para futura aplicação mobile.
+
+Exemplos:
+
+POST /api/login
+POST /api/register
+GET /api/creators
+GET /api/creators/{username}
+GET /api/posts
+POST /api/posts
+GET /api/subscriptions
+POST /api/subscriptions
+DELETE /api/subscriptions/{id}
+
+Usar autenticação adequada e versionamento futuro:
+
+/api/v1/
+
+==================================================
+34. ANALYTICS
+==================================================
+
+Adicionar estrutura para integração futura com:
+- Google Analytics
+- Google Search Console
+- Meta Pixel
+- eventos de conversão
+
+Eventos importantes:
+
+view_creator
+register
+start_checkout
+subscription_created
+subscription_cancelled
+post_view
+follow_creator
+
+Não inserir trackers que violem privacidade ou políticas aplicáveis.
+
+==================================================
+35. MÉTRICAS PRINCIPAIS
+==================================================
+
+Dashboard administrativo deve permitir acompanhar:
+
+MAU
+DAU
+novos usuários
+novos creators
+creators ativos
+assinantes ativos
+novas assinaturas
+cancelamentos
+MRR
+GMV
+take rate
+ticket médio
+taxa de conversão
+
+No MVP, implementar primeiro:
+- usuários
+- creators
+- assinantes
+- assinaturas
+- GMV
+- receita da plataforma
+
+==================================================
+36. REGRAS IMPORTANTES
+==================================================
+
+1. Creator precisa estar verificado para monetizar.
+
+2. Usuário precisa confirmar maioridade conforme o fluxo legal definido.
+
+3. Conteúdo privado nunca pode ser acessado apenas alterando a URL.
+
+4. Toda autorização deve ser validada no backend.
+
+5. Pagamento nunca deve ser considerado aprovado apenas pelo frontend.
+
+6. O status financeiro deve ser atualizado pelo webhook do gateway.
+
+7. Não armazenar dados completos de cartão.
+
+8. Conteúdo privado deve utilizar armazenamento protegido.
+
+9. Criar logs para ações administrativas.
+
+10. Criar mecanismos de denúncia e remoção.
+
+==================================================
+37. CRITÉRIOS DE ACEITE DO MVP
+==================================================
+
+O MVP será considerado funcional quando:
+
+[ ] Usuário consegue criar conta
+[ ] Usuário consegue fazer login
+[ ] Creator consegue criar perfil
+[ ] Creator consegue solicitar verificação
+[ ] Admin consegue aprovar creator
+[ ] Creator consegue criar publicação
+[ ] Creator consegue definir publicação como exclusiva
+[ ] Usuário consegue explorar creators
+[ ] Usuário consegue visualizar perfil
+[ ] Usuário consegue seguir creator
+[ ] Usuário consegue iniciar assinatura
+[ ] Gateway pode confirmar pagamento via webhook
+[ ] Assinante consegue acessar conteúdo exclusivo
+[ ] Não assinante não consegue acessar conteúdo privado
+[ ] Creator consegue visualizar assinantes
+[ ] Creator consegue visualizar receitas
+[ ] Admin consegue visualizar usuários
+[ ] Admin consegue moderar conteúdo
+[ ] Usuário consegue denunciar conteúdo
+[ ] Usuário consegue bloquear outro usuário
+[ ] Termos e privacidade estão disponíveis
+[ ] PWA funciona
+[ ] Layout funciona em celular e desktop
+[ ] SEO básico está implementado
+[ ] Testes principais passam
+[ ] Projeto possui README
+[ ] Projeto possui .env.example
+[ ] Projeto pode ser executado localmente
+[ ] Projeto está preparado para deploy
+
+==================================================
+38. ORDEM DE IMPLEMENTAÇÃO
+==================================================
+
+FASE 1
+- Laravel
+- MySQL
+- autenticação
+- layout
+- usuários
+- roles
+
+FASE 2
+- creator profiles
+- categorias
+- explore
+- feed
+
+FASE 3
+- posts
+- mídia
+- conteúdo exclusivo
+- proteção de arquivos
+
+FASE 4
+- assinatura
+- integração de pagamento
+- webhook
+- transações
+
+FASE 5
+- dashboards
+- moderação
+- denúncias
+- bloqueios
+
+FASE 6
+- SEO
+- PWA
+- performance
+- segurança
+- testes
+
+FASE 7
+- deploy
+- domínio
+- HTTPS
+- monitoramento
+- analytics
+
+==================================================
+39. O QUE NÃO IMPLEMENTAR NO MVP
+==================================================
+
+Deixar para a versão 2:
+
+- chat em tempo real
+- gorjetas
+- venda de conteúdo avulso
+- lives
+- chamadas de vídeo
+- programa de afiliados
+- sistema avançado de indicação
+- carteira interna completa
+- múltiplos níveis de assinatura
+- marketplace avançado
+- algoritmo complexo de recomendação
+- app Android nativo
+- app iOS nativo
+- IA de moderação avançada
+- sistema avançado antifraude
+- programa de creators VIP
+
+Criar arquitetura que permita adicionar esses módulos futuramente.
+
+==================================================
+40. RESULTADO FINAL ESPERADO
+==================================================
+
+Entregar uma aplicação FANORA MVP funcional, responsiva, instalável como PWA, com aparência profissional e fluxo comercial básico.
+
+O objetivo não é criar uma cópia de outra plataforma.
+
+O objetivo é criar uma marca própria e uma infraestrutura própria de creator economy, com foco em:
+
+- aquisição de creators
+- aquisição de assinantes
+- monetização
+- segurança
+- retenção
+- escalabilidade
+
+Prioridade absoluta:
+
+FUNCIONAR → SER SEGURO → VALIDAR O MERCADO → MEDIR → ESCALAR.
+
+Antes de considerar o projeto concluído, revisar:
+- segurança
+- privacidade
+- controle de idade
+- regras de conteúdo
+- pagamentos
+- LGPD
+- proteção de mídia
+- autorização
+- performance
+- SEO
+- responsividade.
+
+Não utilizar dados, marcas, layouts proprietários ou código de terceiros de plataformas concorrentes.

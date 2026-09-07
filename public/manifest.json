@@ -1,0 +1,49 @@
+{
+    "name": "FANORA",
+    "short_name": "FANORA",
+    "description": "Plataforma de creators y contenido exclusivo.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#080808",
+    "theme_color": "#080808",
+    "lang": "pt-BR",
+    "dir": "ltr",
+    "categories": ["social", "entertainment"],
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon-192-maskable.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Explorar creators",
+            "short_name": "Explorar",
+            "url": "/explore",
+            "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Meu feed",
+            "short_name": "Feed",
+            "url": "/feed",
+            "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ],
+    "screenshots": []
+}
