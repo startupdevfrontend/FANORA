@@ -2,8 +2,10 @@
     title="Criar conta"
     description="Cria sua conta FANORA e descubre conteúdo exclusivo de creators. Plataforma para mayores de 18 años."
 >
-    <div class="mx-auto w-full max-w-md">
-        <div class="card p-8">
+    <div class="relative mx-auto w-full max-w-md py-12">
+        <div class="hero-gradient absolute inset-0 z-[-1]"></div>
+        <div class="card glass-card p-8 shadow-2xl shadow-brand-magenta/5">
+            <img src="{{ asset('img/logo-text-dark.png') }}" alt="FANORA" class="mx-auto h-20 w-auto mb-2 drop-shadow-lg">
             <h1 class="text-2xl font-bold tracking-tight">Criar conta</h1>
             <p class="mt-2 text-sm text-brand-muted">Leva menos de um minuto. Solo maiores de 18 años.</p>
 
@@ -17,7 +19,18 @@
                 <x-input name="password" label="Senha" type="password" autocomplete="new-password" required />
                 <x-input name="password_confirmation" label="Confirmar senha" type="password" autocomplete="new-password" required />
 
-                <x-alert type="warning">Somente maiores de 18 años. Ao crear uma conta você confirma sua maioridade legal.</x-alert>
+                <div class="relative overflow-hidden rounded-xl border-2 border-amber-500/70 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 p-4 backdrop-blur-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-2xl ring-1 ring-amber-500/40">
+                            🔞
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-amber-300">Conteúdo para maiores de 18 años</p>
+                            <p class="mt-1 text-xs leading-relaxed text-amber-200/90">Somente maiores de 18 años. Ao crear uma conta você confirma sua maioridade legal.</p>
+                        </div>
+                    </div>
+                    <div class="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-amber-500/10 blur-2xl"></div>
+                </div>
 
                 <div class="flex items-start gap-2.5">
                     <input id="terms" type="checkbox" name="terms" value="1" class="mt-1 h-4 w-4 accent-brand-magenta">

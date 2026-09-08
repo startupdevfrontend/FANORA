@@ -37,29 +37,50 @@
 /* Custom utilities (simple names, usable in @apply)                  */
 /* ------------------------------------------------------------------ */
 
-@utility card { @apply rounded-2xl border border-brand-border bg-brand-card; }
+@utility glass { @apply backdrop-blur-xl bg-white/5 border border-white/10; }
+@utility glass-card { @apply glass rounded-2xl shadow-2xl shadow-black/20; }
+@utility glass-nav { @apply glass border-b border-white/10 backdrop-blur-2xl; }
+
+@utility hero-gradient { background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(233,30,99,0.15), rgba(124,58,237,0.1) 60%, transparent 80%); }
+@utility shadow-glow-magenta { box-shadow: 0 0 20px -5px rgba(233,30,99,0.4), 0 10px 30px -10px rgba(233,30,99,0.3); }
+@utility shadow-glow-purple { box-shadow: 0 0 20px -5px rgba(124,58,237,0.4), 0 10px 30px -10px rgba(124,58,237,0.3); }
+
+@utility card { @apply rounded-2xl border border-brand-border bg-brand-card shadow-lg shadow-black/20 transition-all duration-200 ease-out hover:shadow-xl hover:shadow-brand-magenta/10 hover:-translate-y-0.5; }
 @utility stat-card { @apply card p-5 flex flex-col gap-5; }
-@utility creator-card { @apply card p-5 flex flex-col gap-2 transition hover:border-brand-magenta/40 hover:shadow-lg hover:shadow-brand-magenta/5; }
-@utility post-card { @apply card mb-5 p-5; }
+@utility creator-card { @apply card p-5 flex flex-col gap-2 duration-200 ease-out hover:border-brand-magenta/50 hover:shadow-2xl hover:shadow-glow-magenta; }
+@utility post-card { @apply card mb-5 p-5 hover:shadow-xl hover:shadow-brand-purple/10; }
 @utility stat-icon { @apply mb-1 grid h-9 w-9 place-items-center rounded-lg bg-brand-magenta/15 text-brand-magenta; }
 @utility stat-value { @apply text-2xl font-bold tracking-tight text-white; }
 
-@utility btn { @apply inline-flex shrink-0 items-center justify-center gap-2 rounded-xl font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta disabled:cursor-not-allowed disabled:opacity-50; }
+@utility avatar-glow { @apply ring-2 ring-brand-magenta/50 ring-offset-2 ring-offset-brand-black shadow-lg shadow-brand-magenta/30; }
+
+@utility section-title { @apply text-3xl font-bold tracking-tight text-white mb-2; }
+@utility hero-title { @apply text-5xl font-extrabold tracking-tight text-white leading-[1.1]; }
+
+@utility badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+@utility badge-magenta { @apply badge bg-brand-magenta/15 text-brand-magenta border border-brand-magenta/30; }
+@utility badge-purple { @apply badge bg-brand-purple/15 text-brand-purple border border-brand-purple/30; }
+@utility badge-success { @apply badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/30; }
+@utility badge-warning { @apply badge bg-amber-500/15 text-amber-400 border border-amber-500/30; }
+@utility badge-danger { @apply badge bg-red-500/15 text-red-400 border border-red-500/30; }
+@utility badge-default { @apply badge bg-brand-card text-brand-muted border border-brand-border; }
+
+@utility btn { @apply inline-flex shrink-0 items-center justify-center gap-2 rounded-xl font-semibold duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta disabled:cursor-not-allowed disabled:opacity-50; }
 @utility btn-xs { @apply px-2.5 py-1.5 text-xs; }
 @utility btn-sm { @apply px-3 py-2 text-sm; }
 @utility btn-lg { @apply px-6 py-3.5 text-base; }
-@utility btn-primary { @apply bg-brand-magenta text-white shadow-sm shadow-brand-magenta/25 hover:bg-brand-magenta-dark active:scale-[.98]; }
-@utility btn-accent { @apply bg-brand-purple text-white shadow-sm shadow-brand-purple/25 hover:bg-brand-purple-dark active:scale-[.98]; }
-@utility btn-outline { @apply border border-brand-border bg-transparent text-white hover:border-brand-magenta/60 hover:bg-brand-card; }
+@utility btn-primary { @apply bg-brand-magenta text-white shadow-lg shadow-brand-magenta/30 hover:bg-brand-magenta-dark hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-magenta/40 active:scale-[.98]; }
+@utility btn-accent { @apply bg-brand-purple text-white shadow-lg shadow-brand-purple/30 hover:bg-brand-purple-dark hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-purple/40 active:scale-[.98]; }
+@utility btn-outline { @apply border border-brand-border bg-transparent text-white hover:border-brand-magenta/60 hover:bg-brand-card hover:scale-[1.02] hover:shadow-md hover:shadow-brand-magenta/10; }
 @utility btn-ghost { @apply text-brand-muted hover:bg-brand-card hover:text-white; }
 @utility btn-danger { @apply bg-red-600/10 text-red-300 border border-red-500/30 hover:bg-red-600/20; }
 
 @utility input-base {
     @apply w-full rounded-xl border border-brand-border bg-brand-input px-3.5 py-2.5 text-sm text-white
-        placeholder:text-brand-muted/50 transition
-        focus:border-brand-magenta focus:ring-2 focus:ring-brand-magenta/20 focus:outline-none;
+        placeholder:text-brand-muted/50 duration-200 ease-out
+        focus:border-brand-magenta focus:ring-4 focus:ring-brand-magenta/25 focus:shadow-lg focus:shadow-brand-magenta/20 focus:outline-none;
 }
-@utility input-error { @apply border-red-500/60 focus:border-red-500 focus:ring-red-500/20; }
+@utility input-error { @apply border-red-500/60 focus:border-red-500 focus:ring-red-500/25 focus:shadow-red-500/20; }
 
 @utility sidebar-item { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-brand-muted transition hover:bg-brand-card hover:text-white; }
 @utility sidebar-item-active { @apply bg-brand-card text-white; }
@@ -70,8 +91,8 @@
 @utility pagination-link-active { @apply border-brand-magenta/50 bg-brand-magenta/15 text-brand-magenta; }
 
 @utility text-danger { @apply text-red-400; }
-@utility pill { @apply inline-flex items-center gap-1 rounded-full border border-brand-border bg-brand-card/60 px-2.5 py-0.5 text-xs font-medium text-brand-muted; }
-@utility active-pill { @apply border-brand-magenta/50 bg-brand-magenta/15 text-brand-magenta; }
+@utility pill { @apply inline-flex items-center gap-1 rounded-full border border-brand-border bg-brand-card/70 px-3 py-1 text-xs font-semibold text-brand-muted transition-all duration-200 ease-out hover:border-brand-magenta/30 hover:bg-brand-card hover:text-white hover:shadow-md hover:shadow-brand-magenta/5; }
+@utility active-pill { @apply pill border-brand-magenta/50 bg-gradient-to-r from-brand-magenta/20 to-brand-purple/20 text-white shadow-md shadow-brand-magenta/15; }
 @utility text-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple bg-clip-text text-transparent; }
 @utility bg-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple; }
 
@@ -80,29 +101,50 @@
 /* ------------------------------------------------------------------ */
 
 @layer components {
-    .card { @apply card; }
-    .stat-card { @apply stat-card; }
-    .creator-card { @apply creator-card; }
-    .post-card { @apply post-card; }
+    .glass { @apply backdrop-blur-xl bg-white/5 border border-white/10; }
+    .glass-card { @apply glass rounded-2xl shadow-2xl shadow-black/20; }
+    .glass-nav { @apply glass border-b border-white/10 backdrop-blur-2xl; }
+
+    .hero-gradient { background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(233,30,99,0.15), rgba(124,58,237,0.1) 60%, transparent 80%); }
+    .shadow-glow-magenta { box-shadow: 0 0 20px -5px rgba(233,30,99,0.4), 0 10px 30px -10px rgba(233,30,99,0.3); }
+    .shadow-glow-purple { box-shadow: 0 0 20px -5px rgba(124,58,237,0.4), 0 10px 30px -10px rgba(124,58,237,0.3); }
+
+    .avatar-glow { @apply ring-2 ring-brand-magenta/50 ring-offset-2 ring-offset-brand-black shadow-lg shadow-brand-magenta/30; }
+
+    .section-title { @apply text-3xl font-bold tracking-tight text-white mb-2; }
+    .hero-title { @apply text-5xl font-extrabold tracking-tight text-white leading-[1.1]; }
+
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+    .badge-magenta { @apply badge bg-brand-magenta/15 text-brand-magenta border border-brand-magenta/30; }
+    .badge-purple { @apply badge bg-brand-purple/15 text-brand-purple border border-brand-purple/30; }
+    .badge-success { @apply badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/30; }
+    .badge-warning { @apply badge bg-amber-500/15 text-amber-400 border border-amber-500/30; }
+    .badge-danger { @apply badge bg-red-500/15 text-red-400 border border-red-500/30; }
+    .badge-default { @apply badge bg-brand-card text-brand-muted border border-brand-border; }
+
+    .card { @apply rounded-2xl border border-brand-border bg-brand-card shadow-lg shadow-black/20 transition-all duration-200 ease-out hover:shadow-xl hover:shadow-brand-magenta/10 hover:-translate-y-0.5; }
+    .stat-card { @apply card p-5 flex flex-col gap-5; }
+    .creator-card { @apply card p-5 flex flex-col gap-2 duration-200 ease-out hover:border-brand-magenta/50 hover:shadow-2xl hover:shadow-glow-magenta; }
+    .post-card { @apply card mb-5 p-5 hover:shadow-xl hover:shadow-brand-purple/10; }
     .stat-icon { @apply mb-1 grid h-9 w-9 place-items-center rounded-lg bg-brand-magenta/15 text-brand-magenta; }
     .stat-value { @apply text-2xl font-bold tracking-tight text-white; }
 
-    .btn { @apply inline-flex shrink-0 items-center justify-center gap-2 rounded-xl font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta disabled:cursor-not-allowed disabled:opacity-50; }
+    .btn { @apply inline-flex shrink-0 items-center justify-center gap-2 rounded-xl font-semibold duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta disabled:cursor-not-allowed disabled:opacity-50; }
     .btn-xs { @apply px-2.5 py-1.5 text-xs; }
     .btn-sm { @apply px-3 py-2 text-sm; }
     .btn-lg { @apply px-6 py-3.5 text-base; }
-    .btn-primary { @apply bg-brand-magenta text-white shadow-sm shadow-brand-magenta/25 hover:bg-brand-magenta-dark active:scale-[.98]; }
-    .btn-accent { @apply bg-brand-purple text-white shadow-sm shadow-brand-purple/25 hover:bg-brand-purple-dark active:scale-[.98]; }
-    .btn-outline { @apply border border-brand-border bg-transparent text-white hover:border-brand-magenta/60 hover:bg-brand-card; }
+    .btn-primary { @apply bg-brand-magenta text-white shadow-lg shadow-brand-magenta/30 hover:bg-brand-magenta-dark hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-magenta/40 active:scale-[.98]; }
+    .btn-accent { @apply bg-brand-purple text-white shadow-lg shadow-brand-purple/30 hover:bg-brand-purple-dark hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-purple/40 active:scale-[.98]; }
+    .btn-outline { @apply border border-brand-border bg-transparent text-white hover:border-brand-magenta/60 hover:bg-brand-card hover:scale-[1.02] hover:shadow-md hover:shadow-brand-magenta/10; }
     .btn-ghost { @apply text-brand-muted hover:bg-brand-card hover:text-white; }
     .btn-danger { @apply bg-red-600/10 text-red-300 border border-red-500/30 hover:bg-red-600/20; }
 
     .input-base {
         @apply w-full rounded-xl border border-brand-border bg-brand-input px-3.5 py-2.5 text-sm text-white
-            placeholder:text-brand-muted/50 transition
-            focus:border-brand-magenta focus:ring-2 focus:ring-brand-magenta/20 focus:outline-none;
+            placeholder:text-brand-muted/50 duration-200 ease-out
+            focus:border-brand-magenta focus:ring-4 focus:ring-brand-magenta/25 focus:shadow-lg focus:shadow-brand-magenta/20 focus:outline-none;
     }
-    .input-error { @apply border-red-500/60 focus:border-red-500 focus:ring-red-500/20; }
+    .input-error { @apply border-red-500/60 focus:border-red-500 focus:ring-red-500/25 focus:shadow-red-500/20; }
 
     .table-basic { @apply w-full text-left text-sm; }
     .table-basic thead th { @apply border-b border-brand-border px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-brand-muted; }
@@ -117,14 +159,35 @@
     .pagination-link-active { @apply border-brand-magenta/50 bg-brand-magenta/15 text-brand-magenta; }
 
     .text-danger { @apply text-red-400; }
-    .pill { @apply inline-flex items-center gap-1 rounded-full border border-brand-border bg-brand-card/60 px-2.5 py-0.5 text-xs font-medium text-brand-muted; }
-    .active-pill { @apply border-brand-magenta/50 bg-brand-magenta/15 text-brand-magenta; }
+    .pill { @apply inline-flex items-center gap-1 rounded-full border border-brand-border bg-brand-card/70 px-3 py-1 text-xs font-semibold text-brand-muted transition-all duration-200 ease-out hover:border-brand-magenta/30 hover:bg-brand-card hover:text-white hover:shadow-md hover:shadow-brand-magenta/5; }
+    .active-pill { @apply pill border-brand-magenta/50 bg-gradient-to-r from-brand-magenta/20 to-brand-purple/20 text-white shadow-md shadow-brand-magenta/15; }
     .text-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple bg-clip-text text-transparent; }
     .bg-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple; }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
 
 @layer utilities {
+    .glass { @apply backdrop-blur-xl bg-white/5 border border-white/10; }
+    .glass-card { @apply glass rounded-2xl shadow-2xl shadow-black/20; }
+    .glass-nav { @apply glass border-b border-white/10 backdrop-blur-2xl; }
+
+    .hero-gradient { background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(233,30,99,0.15), rgba(124,58,237,0.1) 60%, transparent 80%); }
+    .shadow-glow-magenta { box-shadow: 0 0 20px -5px rgba(233,30,99,0.4), 0 10px 30px -10px rgba(233,30,99,0.3); }
+    .shadow-glow-purple { box-shadow: 0 0 20px -5px rgba(124,58,237,0.4), 0 10px 30px -10px rgba(124,58,237,0.3); }
+
+    .avatar-glow { @apply ring-2 ring-brand-magenta/50 ring-offset-2 ring-offset-brand-black shadow-lg shadow-brand-magenta/30; }
+
+    .section-title { @apply text-3xl font-bold tracking-tight text-white mb-2; }
+    .hero-title { @apply text-5xl font-extrabold tracking-tight text-white leading-[1.1]; }
+
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+    .badge-magenta { @apply badge bg-brand-magenta/15 text-brand-magenta border border-brand-magenta/30; }
+    .badge-purple { @apply badge bg-brand-purple/15 text-brand-purple border border-brand-purple/30; }
+    .badge-success { @apply badge bg-emerald-500/15 text-emerald-400 border border-emerald-500/30; }
+    .badge-warning { @apply badge bg-amber-500/15 text-amber-400 border border-amber-500/30; }
+    .badge-danger { @apply badge bg-red-500/15 text-red-400 border border-red-500/30; }
+    .badge-default { @apply badge bg-brand-card text-brand-muted border border-brand-border; }
+
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .text-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple bg-clip-text text-transparent; }
     .bg-gradient-brand { @apply bg-gradient-to-r from-brand-magenta to-brand-purple; }

@@ -2,8 +2,10 @@
     title="Entrar"
     description="Acesse sua conta FANORA para ver conteúdo exclusivo de seus creators favoritos."
 >
-    <div class="mx-auto w-full max-w-md">
-        <div class="card p-8">
+    <div class="relative mx-auto w-full max-w-md py-12">
+        <div class="hero-gradient absolute inset-0 z-[-1]"></div>
+        <div class="card glass-card p-8 shadow-2xl shadow-brand-magenta/5">
+            <img src="{{ asset('img/logo-text-dark.png') }}" alt="FANORA" class="mx-auto h-20 w-auto mb-2 drop-shadow-lg">
             <h1 class="text-2xl font-bold tracking-tight">Entrar</h1>
             <p class="mt-2 text-sm text-brand-muted">Acesse sua conta para não perder nenhun conteúdo exclusivo.</p>
 
