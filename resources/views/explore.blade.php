@@ -48,12 +48,8 @@
     <div class="mb-8 flex flex-wrap gap-3">
         <a href="{{ route('explore') }}" class="pill px-5 py-2.5 shadow-md shadow-black/5 hover:shadow-lg hover:shadow-black/10 transition-all duration-300 {{ request()->has('category') ? '' : 'active-pill !bg-gradient-to-r !from-brand-600 !via-purple-600 !to-pink-600 !shadow-lg !shadow-brand-500/30' }}">Todas</a>
         @foreach ($categories as $category)
-            @php
-                $catSlug = is_string($category) ? $category : ($category->slug ?? '');
-                $catName = is_string($category) ? $category : ($category->name ?? $category);
-            @endphp
-            <a href="{{ route('explore', ['category' => $catSlug]) }}" class="pill px-5 py-2.5 shadow-md shadow-black/5 hover:shadow-lg hover:shadow-black/10 transition-all duration-300 {{ request()->query('category') == $catSlug ? 'active-pill !bg-gradient-to-r !from-brand-600 !via-purple-600 !to-pink-600 !shadow-lg !shadow-brand-500/30' : '' }}">
-                {{ $catName }}
+            <a href="{{ route('explore', ['category' => $category->slug]) }}" class="pill px-5 py-2.5 shadow-md shadow-black/5 hover:shadow-lg hover:shadow-black/10 transition-all duration-300 {{ request()->query('category') == $category->slug ? 'active-pill !bg-gradient-to-r !from-brand-600 !via-purple-600 !to-pink-600 !shadow-lg !shadow-brand-500/30' : '' }}">
+                {{ $category->name }}
             </a>
         @endforeach
     </div>

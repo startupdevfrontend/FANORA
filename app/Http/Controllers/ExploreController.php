@@ -44,7 +44,7 @@ class ExploreController extends Controller
 
         $creators = $query->paginate(12)->withQueryString();
 
-        $categories = Cache::remember('explore:categories', 3600, fn () => Category::where('is_active', true)->orderBy('name')->get());
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
 
         return view('explore', compact('creators', 'categories'));
     }
