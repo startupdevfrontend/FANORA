@@ -75,7 +75,7 @@ class CreatorController extends Controller
     {
         $this->authorize('manage', [User::class, $profile->user]);
 
-        $profile->update(['is_featured' => ! $profile->is_featured]);
+        $profile->forceFill(['is_featured' => ! $profile->is_featured])->save();
 
         $this->audit->log(auth()->user(), 'creator.featured_toggled', $profile, null, ['is_featured' => $profile->is_featured]);
 

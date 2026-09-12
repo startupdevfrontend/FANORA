@@ -13,15 +13,13 @@ class CreatorProfile extends Model
     /** @use HasFactory<\Database\Factories\CreatorProfileFactory> */
     use HasFactory;
 
+    // SECURITY: verification_status, rejection_reason, is_featured, subscriber_count
+    // are privileged fields - never mass-assignable from user input.
     protected $fillable = [
         'user_id',
         'display_name',
         'tagline',
         'subscription_price_cents',
-        'verification_status',
-        'rejection_reason',
-        'is_featured',
-        'subscriber_count',
         'instagram',
         'tiktok',
         'twitter',

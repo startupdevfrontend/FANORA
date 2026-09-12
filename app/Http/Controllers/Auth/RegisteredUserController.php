@@ -26,16 +26,17 @@ class RegisteredUserController extends Controller
 
     public function store(RegisterRequest $request): RedirectResponse
     {
-        $user = User::create([
-            'name' => $request->string('name'),
-            'username' => $request->string('username'),
-            'email' => $request->string('email'),
-            'password' => $request->string('password'),
-            'birth_date' => $request->date('birth_date'),
-            'age_confirmed' => true,
-            'role' => 'user',
-            'is_active' => true,
-        ]);
+        // SECURITY: privileged fields (role, is_active) not mass-assignable; set explicitly
+        $user = new User();
+        $user->name = $request->string('name');
+        $user->username = $request->string('username');
+        $user->email = $request->string('email');
+        $user->password = $request->string('password'); // hashed via casts
+        $user->birth_date = $request->date('birth_date');
+        $user->age_confirmed = true;
+        $user->role = 'user';
+        $user->is_active = true;
+        $user->save();
 
         Profile::create(['user_id' => $user->id]);
 

@@ -45,8 +45,11 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\Gate::policy($model, $policy);
         }
 
-        RateLimiter::for('login', fn ($job) => Limit::perMinute(5)->by($job->ip()));
+        RateLimiter::for('login', fn ($job) => Limit::perMinute(5)->by(strtolower($job->input('email') ?? $job->input('username') ?? '').'|'.$job->ip()));
         RateLimiter::for('api', fn ($job) => Limit::perMinute(60)->by($job->user()?->id ?? $job->ip()));
+        // Additional: stricter brute-force for password reset & contact
+        RateLimiter::for('password-reset', fn ($job) => Limit::perMinute(5)->by($job->ip()));
+        RateLimiter::for('contact', fn ($job) => Limit::perMinute(3)->by($job->ip()));
 
         VerifyEmail::toMailUsing(
             fn (object $notifiable, string $url) => (new MailMessage)

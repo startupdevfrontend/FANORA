@@ -15,24 +15,24 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
-    // Public auth
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
-    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    // Public auth - throttled to mitigate brute-force / enumeration
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register');
 
-    // Public catalog
-    Route::get('/creators', [CreatorController::class, 'index'])->name('creators.index');
-    Route::get('/creators/{username}', [CreatorController::class, 'show'])->name('creators.show');
-    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    // Public catalog - throttled for scraping protection
+    Route::get('/creators', [CreatorController::class, 'index'])->middleware('throttle:60,1')->name('creators.index');
+    Route::get('/creators/{username}', [CreatorController::class, 'show'])->middleware('throttle:60,1')->name('creators.show');
+    Route::get('/posts', [PostController::class, 'index'])->middleware('throttle:60,1')->name('posts.index');
 
-    // Authenticated
-    Route::middleware('auth:sanctum')->group(function () {
+    // Authenticated - rate limited per user
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-        Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+        Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:30,1')->name('posts.store');
 
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-        Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
-        Route::delete('/subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        Route::post('/subscriptions', [SubscriptionController::class, 'store'])->middleware('throttle:10,1')->name('subscriptions.store');
+        Route::delete('/subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->middleware('throttle:20,1')->name('subscriptions.destroy');
     });
 });
 

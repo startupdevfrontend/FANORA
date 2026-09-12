@@ -14,13 +14,10 @@ class Post extends Model
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory, SoftDeletes;
 
+    // SECURITY: status/is_premium_paid/user_id are privileged - set explicitly in service/controller, not via mass assignment
     protected $fillable = [
-        'user_id',
         'body',
         'visibility',
-        'is_premium_paid',
-        'status',
-        'published_at',
     ];
 
     protected function casts(): array

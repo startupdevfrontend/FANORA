@@ -12,6 +12,15 @@ class CreatorProfileRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    protected function prepareForValidation(): void
+    {
+        foreach (['display_name','tagline','instagram','tiktok','twitter','youtube'] as $field) {
+            if ($this->has($field)) {
+                $this->merge([$field => strip_tags((string) $this->input($field))]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [

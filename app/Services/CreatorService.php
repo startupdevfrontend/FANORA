@@ -57,11 +57,11 @@ class CreatorService
         $path = null;
 
         if ($document) {
-            $path = $document->storeAs(
-                'verifications/'.$user->id,
-                'doc_'.time().'.'.$document->getClientOriginalExtension(),
-                'private'
-            );
+            // SECURITY: use guessExtension + uuid, not time + client extension (prevents predictable path & double-ext)
+            $ext = $document->guessExtension() ?: strtolower($document->getClientOriginalExtension());
+            $ext = in_array($ext, ['pdf','jpg','jpeg','png'], true) ? ($ext === 'jpeg' ? 'jpg' : $ext) : 'bin';
+            $name = 'doc_'.\Illuminate\Support\Str::uuid()->toString().'.'.$ext;
+            $path = $document->storeAs('verifications/'.$user->id, $name, 'private');
         }
 
         $verification = CreatorVerification::create([
@@ -89,10 +89,10 @@ class CreatorService
                 'reviewed_at' => now(),
             ]);
 
-            $verification->user->creatorProfile?->update([
+            $verification->user->creatorProfile?->forceFill([
                 'verification_status' => VerificationStatus::Approved->value,
                 'rejection_reason' => null,
-            ]);
+            ])->save();
 
             $verification->user->notify(new CreatorVerificationApprovedNotification($verification->user));
 
@@ -113,10 +113,10 @@ class CreatorService
                 'reviewed_at' => now(),
             ]);
 
-            $verification->user->creatorProfile?->update([
+            $verification->user->creatorProfile?->forceFill([
                 'verification_status' => VerificationStatus::Rejected->value,
                 'rejection_reason' => $reason,
-            ]);
+            ])->save();
 
             $verification->user->notify(new CreatorVerificationRejectedNotification($verification->user, $reason));
 

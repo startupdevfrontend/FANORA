@@ -11,6 +11,20 @@ class ProfileUpdateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Input sanitization: strip tags from text fields to prevent XSS persistence
+        if ($this->has('bio')) {
+            $this->merge(['bio' => strip_tags((string) $this->input('bio'))]);
+        }
+        if ($this->has('name')) {
+            $this->merge(['name' => strip_tags((string) $this->input('name'))]);
+        }
+        if ($this->has('location')) {
+            $this->merge(['location' => strip_tags((string) $this->input('location'))]);
+        }
+    }
+
     public function rules(): array
     {
         return [

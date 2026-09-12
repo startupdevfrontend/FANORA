@@ -98,7 +98,11 @@ class MediaService
 
     protected function storePrivate(UploadedFile $file, string $folder): string
     {
-        $name = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+        // SECURITY: use guessExtension from mime, not client-provided extension, to prevent double-extension attacks
+        $ext = $file->guessExtension() ?: strtolower($file->getClientOriginalExtension());
+        // whitelist extensions
+        $ext = in_array($ext, ['jpeg','jpg','png','webp','gif','mp4','webm','mov'], true) ? ($ext === 'jpeg' ? 'jpg' : $ext) : 'bin';
+        $name = Str::uuid()->toString().'.'.$ext;
 
         return $file->storeAs($folder, $name, 'private');
     }
@@ -113,10 +117,21 @@ class MediaService
             abort_if($file->getSize() > $config['image_max_bytes'], 422, 'Arquivo excede o tamanho máximo de imagem.');
         }
 
-        $allowed = $mediaType === 'video' ? $config['video_mimes'] : $config['image_mimes'];
-        $mime = strtolower($file->getClientOriginalExtension());
+        abort_if($file->getSize() === 0, 422, 'Arquivo vazio não permitido.');
 
-        abort_if(! in_array($mime, $allowed, true), 422, 'Extensão de arquivo não permitida.');
+        // Validate both extension and mime; use client extension lowercased
+        $allowed = $mediaType === 'video' ? $config['video_mimes'] : $config['image_mimes'];
+        $ext = strtolower($file->getClientOriginalExtension());
+        // normalize jpeg
+        $extNorm = $ext === 'jpeg' ? 'jpg' : $ext;
+        $allowedNorm = array_map(fn($e) => $e === 'jpeg' ? 'jpg' : $e, $allowed);
+        abort_if(! in_array($extNorm, $allowedNorm, true), 422, 'Extensão de arquivo não permitida.');
+        // Also validate guessed extension matches allowed
+        $guessed = strtolower($file->guessExtension() ?? '');
+        if ($guessed !== '') {
+            $guessedNorm = $guessed === 'jpeg' ? 'jpg' : $guessed;
+            abort_if(! in_array($guessedNorm, $allowedNorm, true), 422, 'Extensão inferida não permitida.');
+        }
 
         abort_if(! in_array($file->getMimeType(), [
             'image/jpeg',
@@ -127,5 +142,7 @@ class MediaService
             'video/webm',
             'video/quicktime',
         ], true), 422, 'Tipo MIME não permitido.');
+        // Block executable / php disguised files
+        abort_if(str_contains($file->getClientOriginalName(), '.php'), 422, 'Nome de arquivo inválido.');
     }
 }

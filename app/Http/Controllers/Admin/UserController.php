@@ -17,9 +17,16 @@ class UserController extends Controller
 
     public function index(Request $request): View
     {
+        $search = $request->query('search');
+        if (is_string($search)) {
+            $search = mb_substr(strip_tags(trim($search)), 0, 64);
+            $search = str_replace(['%', '_', '\\'], ['\%', '\_', '\\\\'], $search);
+        } else {
+            $search = null;
+        }
         $users = User::query()
             ->with('creatorProfile')
-            ->when($request->query('search'), fn ($q, $s) => $q->where(function ($w) use ($s) {
+            ->when($search, fn ($q, $s) => $q->where(function ($w) use ($s) {
                 $w->where('name', 'like', "%{$s}%")
                     ->orWhere('username', 'like', "%{$s}%")
                     ->orWhere('email', 'like', "%{$s}%");
@@ -41,7 +48,8 @@ class UserController extends Controller
     {
         $this->authorize('activate', [User::class, $user]);
 
-        $user->update(['is_active' => ! $user->is_active]);
+        // SECURITY: is_active is privileged, use forceFill to bypass fillable guard
+        $user->forceFill(['is_active' => ! $user->is_active])->save();
 
         $this->audit->log(auth()->user(), 'user.toggled_active', $user, ['is_active' => ! $user->is_active], ['is_active' => $user->is_active]);
 
@@ -52,7 +60,7 @@ class UserController extends Controller
     {
         $this->authorize('manage', [User::class, $user]);
 
-        $user->update(['role' => 'admin']);
+        $user->forceFill(['role' => 'admin'])->save();
 
         $this->audit->log(auth()->user(), 'user.promoted_admin', $user);
 
@@ -65,7 +73,7 @@ class UserController extends Controller
 
         abort_if($user->id === auth()->id(), 422, 'Você não pode remover o próprio acesso.');
 
-        $user->update(['role' => 'user']);
+        $user->forceFill(['role' => 'user'])->save();
 
         $this->audit->log(auth()->user(), 'user.demoted', $user);
 
@@ -78,7 +86,7 @@ class UserController extends Controller
 
         abort_if($user->id === auth()->id(), 422, 'Você não pode suspender a própria conta.');
 
-        $user->update(['is_active' => false]);
+        $user->forceFill(['is_active' => false])->save();
 
         $this->audit->log(auth()->user(), 'user.suspended', $user);
 

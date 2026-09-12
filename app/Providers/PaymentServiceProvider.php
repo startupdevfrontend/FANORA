@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\EarningsService;
+use App\Services\Payment\AsaasGateway;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\Payment\SandboxGateway;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +15,7 @@ class PaymentServiceProvider extends ServiceProvider
         $this->app->singleton(PaymentGatewayManager::class, function ($app) {
             $drivers = [
                 'sandbox' => new SandboxGateway(),
+                'asaas' => $app->make(AsaasGateway::class),
             ];
 
             // Real integrations should be registered here when implemented.
@@ -21,6 +23,11 @@ class PaymentServiceProvider extends ServiceProvider
             // $drivers['pix'] = ...;
 
             return new PaymentGatewayManager($drivers);
+        });
+
+        // Allow direct resolution of AsaasGateway via DI container
+        $this->app->bind(AsaasGateway::class, function ($app) {
+            return new AsaasGateway();
         });
     }
 

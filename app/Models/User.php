@@ -17,6 +17,8 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasApiTokens, Notifiable;
 
+    // SECURITY: role, is_active, email_verified_at removed from fillable to prevent
+    // mass-assignment privilege escalation. Assign them explicitly via service layer.
     protected $fillable = [
         'name',
         'username',
@@ -24,9 +26,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'birth_date',
         'age_confirmed',
-        'role',
-        'is_active',
-        'email_verified_at',
     ];
 
     protected $hidden = [

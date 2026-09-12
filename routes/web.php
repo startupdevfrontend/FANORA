@@ -45,13 +45,26 @@ Route::get('/cookies', [LegalController::class, 'cookies'])->name('cookies');
 Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
 Route::post('/contact', [LegalController::class, 'contactSubmit'])->name('contact.submit')->middleware('throttle:5,1');
 
-// SEO files
-Route::get('/robots.txt', fn () => response(
-    file_get_contents(resource_path('seo/robots.txt'))
-)->header('Content-Type', 'text/plain'))->name('robots');
-Route::get('/sitemap.xml', fn () => response(
-    view('seo.sitemap')
-)->header('Content-Type', 'application/xml'))->name('sitemap');
+// SEO files - cached for performance
+Route::get('/robots.txt', function () {
+    $content = \Illuminate\Support\Facades\Cache::remember('seo:robots.txt', 86400, fn () => file_get_contents(resource_path('seo/robots.txt')));
+
+    return response($content, 200, [
+        'Content-Type' => 'text/plain',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->name('robots');
+
+Route::get('/sitemap.xml', function () {
+    $xml = \Illuminate\Support\Facades\Cache::remember('seo:sitemap.xml', 3600, function () {
+        return view('seo.sitemap')->render();
+    });
+
+    return response($xml, 200, [
+        'Content-Type' => 'application/xml',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->name('sitemap');
 
 /*
 |--------------------------------------------------------------------------

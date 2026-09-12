@@ -40,13 +40,14 @@ class PostController extends Controller
     {
         $this->authorize('create', Post::class);
 
-        $post = Post::create([
-            'user_id' => auth()->id(),
-            'body' => $request->string('body'),
-            'visibility' => (string) $request->string('visibility'),
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        // SECURITY: privileged fields (user_id, status, published_at) set explicitly, not via mass assignment
+        $post = new Post();
+        $post->user_id = auth()->id();
+        $post->body = $request->string('body');
+        $post->visibility = (string) $request->string('visibility');
+        $post->status = 'published';
+        $post->published_at = now();
+        $post->save();
 
         if ($request->hasFile('media')) {
             $builder = $post->media();

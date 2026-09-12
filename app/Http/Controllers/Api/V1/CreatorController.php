@@ -17,13 +17,17 @@ class CreatorController extends Controller
             ->where('verification_status', 'approved');
 
         if ($search = trim((string) $request->query('q'))) {
+            $search = mb_substr(strip_tags($search), 0, 64);
+            $search = str_replace(['%', '_', '\\'], ['\%', '\_', '\\\\'], $search);
             $query->where(fn ($q) => $q
                 ->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%"))
                 ->orWhere('tagline', 'like', "%{$search}%"));
         }
 
-        if ($request->query('category')) {
-            $query->whereHas('categories', fn ($c) => $c->where('slug', $request->query('category')));
+        if ($slug = (string) $request->query('category')) {
+            if (preg_match('/^[a-z0-9\-]+$/', $slug)) {
+                $query->whereHas('categories', fn ($c) => $c->where('slug', $slug));
+            }
         }
 
         return response()->json($query->paginate(15));

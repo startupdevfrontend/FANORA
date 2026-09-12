@@ -38,17 +38,22 @@ class LegalController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'max:255'],
             'subject' => ['required', 'string', 'max:200'],
             'message' => ['required', 'string', 'max:3000'],
         ]);
 
+        // SECURITY: sanitize to prevent header injection & XSS in logs
+        $safeName = str_replace(["\r", "\n", "%0a", "%0d"], '', strip_tags($validated['name']));
+        $safeSubject = str_replace(["\r", "\n", "%0a", "%0d"], '', strip_tags($validated['subject']));
+        $safeMessage = strip_tags($validated['message']);
+
         // MVP: logs the message via the default mailer (log in dev).
         Mail::raw(
-            "De: {$validated['name']} <{$validated['email']}>\nAssunto: {$validated['subject']}\n\n{$validated['message']}",
+            "De: {$safeName} <{$validated['email']}>\nAssunto: {$safeSubject}\n\n{$safeMessage}",
             fn ($message) => $message
                 ->to(config('mail.from.address'))
-                ->subject('[FANORA Contato] '.$validated['subject'])
+                ->subject('[FANORA Contato] '.$safeSubject)
         );
 
         return back()->with('status', 'Mensagem enviada. Entraremos em contato em breve.');

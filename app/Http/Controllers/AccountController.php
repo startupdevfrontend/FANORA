@@ -75,9 +75,8 @@ class AccountController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
-        auth()->user()->update([
-            'password' => Hash::make($request->string('password')),
-        ]);
+        // SECURITY: 'hashed' cast handles hashing; pass plain value to avoid double-hash
+        auth()->user()->fill(['password' => (string) $request->string('password')])->save();
 
         return back()->with('status', 'Senha atualizada com sucesso.');
     }
@@ -100,13 +99,14 @@ class AccountController extends Controller
         $user = auth()->user();
 
         // LGPD: full account deletion request. Profile and relation cleanup.
-        $user->update([
+        // SECURITY: use forceFill for privileged fields (is_active, email, username)
+        $user->forceFill([
             'name' => 'Usuário excluído',
             'username' => 'user_'.$user->id,
             'email' => 'deleted_'.$user->id.'@removido.fanora.app',
             'is_active' => false,
-            'password' => Hash::make(\Illuminate\Support\Str::random(60)),
-        ]);
+            'password' => \Illuminate\Support\Str::random(60), // hashed via cast
+        ])->save();
 
         $this->audit->log($user, 'account.deletion_requested', $user);
 

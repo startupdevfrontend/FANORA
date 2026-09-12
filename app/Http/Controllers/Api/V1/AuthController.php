@@ -30,16 +30,17 @@ class AuthController extends Controller
             'privacy' => ['accepted'],
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'birth_date' => $validated['birth_date'],
-            'age_confirmed' => true,
-            'role' => 'user',
-            'is_active' => true,
-        ]);
+        // SECURITY: privileged fields set explicitly
+        $user = new User();
+        $user->name = $validated['name'];
+        $user->username = $validated['username'];
+        $user->email = $validated['email'];
+        $user->password = $validated['password'];
+        $user->birth_date = $validated['birth_date'];
+        $user->age_confirmed = true;
+        $user->role = 'user';
+        $user->is_active = true;
+        $user->save();
 
         Profile::create(['user_id' => $user->id]);
 

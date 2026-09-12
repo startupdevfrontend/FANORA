@@ -7,13 +7,10 @@ services:
     container_name: fanora-app
     working_dir: /var/www/html
     volumes:
-      # Code is baked into the image (Dockerfile COPY . .). Only persistent
-      # storage is bind-mounted.
-      # NOTE: bind-mounting the full project (.:/var/www/html) over the 9p
-      # filesystem is unusably slow on Docker Desktop; keep it out. nginx also
-      # has its own baked image (docker/nginx.Dockerfile) so no host mounts are
-      # involved at all (9p mounts can go ENODEV after a Docker Desktop restart).
-      - ./docker/storage:/var/www/html/storage/app/private
+      # Code and public assets are baked into the image.
+      # Storage uses a named volume (no 9p host bind-mount — those go ENODEV
+      # after a Docker Desktop restart and break `docker compose up`).
+      - fanora_storage:/var/www/html/storage/app/private
     environment:
       - APP_ENV=${APP_ENV:-local}
       - APP_DEBUG=${APP_DEBUG:-true}
@@ -84,6 +81,7 @@ services:
 
 volumes:
   mysql_data:
+  fanora_storage:
 
 networks:
   fanora:

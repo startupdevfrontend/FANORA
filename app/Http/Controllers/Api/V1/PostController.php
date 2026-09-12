@@ -50,13 +50,14 @@ class PostController extends Controller
             'visibility' => ['required', 'in:public,subscribers_only'],
         ]);
 
-        $post = Post::create([
-            'user_id' => $request->user()->id,
-            'body' => $validated['body'],
-            'visibility' => $validated['visibility'],
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
+        // SECURITY: privileged fields set explicitly
+        $post = new Post();
+        $post->user_id = $request->user()->id;
+        $post->body = $validated['body'];
+        $post->visibility = $validated['visibility'];
+        $post->status = 'published';
+        $post->published_at = now();
+        $post->save();
 
         $this->audit->log($request->user(), 'post.created', $post);
 
