@@ -51,7 +51,7 @@
     <x-navbar />
     <x-flash />
 
-    <main class="{{ $flush ? '' : 'pb-24' }} {{ $wide ? 'mx-auto min-h-[75vh] w-full max-w-6xl' : 'mx-auto min-h-[75vh] w-full max-w-5xl' }} px-4 py-10">
+    <main class="{{ $flush ? '' : 'pb-24' }} min-h-[75vh] w-full px-4 py-10 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         {{ $slot }}
     </main>
 

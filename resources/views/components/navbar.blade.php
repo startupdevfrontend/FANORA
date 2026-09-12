@@ -1,8 +1,8 @@
 @props(['user' => null])
 <header class="glass sticky top-0 z-40 border-b border-brand-magenta/20 shadow-lg shadow-black/10">
-    <div class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
+    <div class="flex w-full items-center gap-4 px-4 py-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <a href="{{ route('home') }}" class="flex items-center gap-2" aria-label="FANORA — Início">
-            <img src="{{ asset('img/design-01.png') }}" alt="FANORA" class="h-9 w-auto rounded-xl shadow-lg shadow-brand-magenta/20">
+            <img src="{{ asset('img/design-01.png') }}" alt="FANORA" class="h-9 w-9 shrink-0 object-contain aspect-square rounded-xl shadow-lg shadow-brand-magenta/20">
         </a>
 
         <div class="hidden items-center gap-6 text-sm font-medium text-brand-muted md:flex">
