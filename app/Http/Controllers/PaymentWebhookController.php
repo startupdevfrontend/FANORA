@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subscription;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\SubscriptionService;
 use Exception;
@@ -25,14 +26,12 @@ class PaymentWebhookController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        $event = $this->gateways->driver()->handleWebhook($request);
-
         try {
+            $event = $this->gateways->driver()->handleWebhook($request);
             $this->dispatch($event);
         } catch (Exception $e) {
             Log::error('Webhook dispatch failed', [
                 'error' => $e->getMessage(),
-                'event' => $event,
             ]);
 
             return response()->json(['status' => 'error'], 500);
@@ -51,30 +50,26 @@ class PaymentWebhookController extends Controller
         $type = $event['event'] ?? null;
         $data = $event['data'] ?? [];
 
-        if ($type === 'subscription.created' || $type === 'subscription.paid') {
-            $subscription = \App\Models\Subscription::find((int) ($data['subscription_id'] ?? 0));
+        if (in_array($type, ['subscription.created', 'subscription.paid', 'payment.refunded', 'subscription.cancelled'], true)) {
+            $subscription = Subscription::find((int) ($data['subscription_id'] ?? 0));
 
             if (! $subscription) {
-                Log::warning('Webhook for unknown subscription', $data);
+                Log::warning('Webhook for unknown subscription', ['event' => $type]);
 
                 return;
             }
 
-            if ($type === 'subscription.paid') {
-                $this->subscriptions->confirmPaid($subscription, $data);
-            }
+            match ($type) {
+                'subscription.paid' => $this->subscriptions->confirmPaid($subscription, $data),
+                'subscription.cancelled' => $this->subscriptions->handleCancelled($subscription),
+                'payment.refunded' => $this->subscriptions->handleRefund($subscription, $data),
+                default => null,
+            };
 
             return;
         }
 
-        if ($type === 'subscription.cancelled') {
-            $subscription = \App\Models\Subscription::find((int) ($data['subscription_id'] ?? 0));
-
-            if ($subscription) {
-                $this->subscriptions->cancel($subscription);
-            }
-        }
-
+        // Informational events (payment.created, overdue...) never mutate state.
         Log::info('Webhook event not mapped', ['event' => $type]);
     }
 }

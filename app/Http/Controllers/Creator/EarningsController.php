@@ -20,6 +20,8 @@ class EarningsController extends Controller
 
     public function __invoke(Request $request): View
     {
+        abort_unless(auth()->user()->isVerifiedCreator(), 403, 'Área exclusiva para creators verificados.');
+
         $grossCents = (int) PaymentTransaction::where('creator_id', auth()->id())
             ->where('status', TransactionStatus::Paid->value)
             ->sum('gross_amount_cents');
@@ -42,6 +44,10 @@ class EarningsController extends Controller
 
         $payouts = CreatorPayout::where('creator_id', auth()->id())->latest()->limit(10)->get();
 
+        $pendingPayoutExists = CreatorPayout::where('creator_id', auth()->id())
+            ->where('status', PayoutStatus::Pending->value)
+            ->exists();
+
         return view('creator.earnings.index', compact(
             'grossCents',
             'commissionCents',
@@ -49,44 +55,58 @@ class EarningsController extends Controller
             'netCents',
             'transactions',
             'payouts',
+            'pendingPayoutExists',
         ));
     }
 
     public function requestPayout(Request $request): RedirectResponse
     {
-        $request->validate([]);
+        abort_unless(auth()->user()->isVerifiedCreator(), 403, 'Área exclusiva para creators verificados.');
 
-        $period = now()->subMonth();
+        $yearMonth = $request->input('period', now()->format('Y-m'));
 
-        $yearMonth = $period->format('Y-m');
+        // Validate period format (Y-m) — portable across DB drivers.
+        if (! preg_match('/^\d{4}-\d{2}$/', (string) $yearMonth)) {
+            return back()->withErrors(['period' => 'Período inválido.']);
+        }
+
+        [$year, $month] = array_map('intval', explode('-', $yearMonth));
+        $start = now()->setDate($year, $month, 1)->startOfMonth();
+        $end = (clone $start)->endOfMonth();
+
+        if ($start->isFuture()) {
+            return back()->withErrors(['period' => 'Período não pode estar no futuro.']);
+        }
 
         $existing = CreatorPayout::where('creator_id', auth()->id())
-            ->whereRaw("DATE_FORMAT(period_started_on, '%Y-%m') = ?", [$yearMonth])
+            ->whereBetween('period_started_on', [$start, $end])
             ->first();
 
-        abort_if($existing !== null, 422, 'Já existe um saque solicitado para este período.');
+        if ($existing !== null) {
+            return back()->withErrors(['period' => 'Já existe um saque solicitado para este período.']);
+        }
 
-        $grossCents = (int) PaymentTransaction::where('creator_id', auth()->id())
+        $paidBase = fn () => PaymentTransaction::where('creator_id', auth()->id())
             ->where('status', TransactionStatus::Paid->value)
-            ->whereBetween('paid_at', [$period->startOfMonth(), $period->endOfMonth()])
-            ->sum('gross_amount_cents');
+            ->whereBetween('paid_at', [$start, $end]);
 
-        $feesCents = (int) PaymentTransaction::where('creator_id', auth()->id())
-            ->where('status', TransactionStatus::Paid->value)
-            ->whereBetween('paid_at', [$period->startOfMonth(), $period->endOfMonth()])
-            ->sum('commission_cents') + (int) PaymentTransaction::where('creator_id', auth()->id())
-            ->where('status', TransactionStatus::Paid->value)
-            ->whereBetween('paid_at', [$period->startOfMonth(), $period->endOfMonth()])
-            ->sum('gateway_fee_cents');
-
+        $grossCents = (int) $paidBase()->sum('gross_amount_cents');
+        $commissionCents = (int) $paidBase()->sum('commission_cents');
+        $feesCents = $commissionCents + (int) $paidBase()->sum('gateway_fee_cents');
         $netCents = $grossCents - $feesCents;
 
         abort_if($netCents <= 0, 422, 'Não há rendimentos disponíveis para saque no período.');
 
+        $minCents = (int) config('fanora.min_payout_cents', 5000);
+
+        if ($netCents < $minCents) {
+            return back()->withErrors(['period' => sprintf('Valor mínimo para saque: R$ %s.', number_format($minCents / 100, 2, ',', '.'))]);
+        }
+
         $payout = CreatorPayout::create([
             'creator_id' => auth()->id(),
-            'period_started_on' => $period->startOfMonth(),
-            'period_ended_on' => $period->endOfMonth(),
+            'period_started_on' => $start,
+            'period_ended_on' => $end,
             'gross_amount_cents' => $grossCents,
             'fees_cents' => $feesCents,
             'net_amount_cents' => $netCents,

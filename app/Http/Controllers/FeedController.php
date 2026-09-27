@@ -20,9 +20,8 @@ class FeedController extends Controller
         $followedIds = $user->following()->pluck('users.id');
 
         $blockedIds = Block::where('blocker_id', $user->id)
-            ->orWhere('blocked_id', $user->id)
             ->pluck('blocked_id')
-            ->merge(Block::where('blocker_id', $user->id)->pluck('blocked_id'));
+            ->merge(Block::where('blocked_id', $user->id)->pluck('blocker_id'));
 
         $posts = Post::query()
             ->where('status', 'published')
@@ -32,10 +31,19 @@ class FeedController extends Controller
             ->latest()
             ->paginate(10);
 
+        $creatorIds = $posts->getCollection()->map(fn (Post $post) => $post->user_id)->unique()->values();
+
+        $accessibleCreatorIds = $user->subscriptions()
+            ->whereIn('creator_id', $creatorIds)
+            ->where('status', 'active')
+            ->distinct()
+            ->pluck('creator_id')
+            ->all();
+
         $access = [];
 
         foreach ($posts->getCollection() as $post) {
-            $canView = $post->visibility === 'public' || $user->activeSubscriptionFor($post->user_id) !== null;
+            $canView = $post->visibility === 'public' || in_array($post->user_id, $accessibleCreatorIds, true);
 
             $urls = [];
 

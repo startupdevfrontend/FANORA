@@ -23,6 +23,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/creators', [CreatorController::class, 'index'])->middleware('throttle:60,1')->name('creators.index');
     Route::get('/creators/{username}', [CreatorController::class, 'show'])->middleware('throttle:60,1')->name('creators.show');
     Route::get('/posts', [PostController::class, 'index'])->middleware('throttle:60,1')->name('posts.index');
+    Route::get('/posts/{post}', [PostController::class, 'show'])->middleware('throttle:60,1')->name('posts.show');
 
     // Authenticated - rate limited per user
     Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
@@ -37,6 +38,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 });
 
 // Provider webhooks (public by design, verified by the gateway adapter)
+// High limit on purpose: a 429 makes Asaas retry harder, and the endpoint is
+// already protected by the strict gateway token check inside the controller.
 Route::post('/webhooks/payment', [PaymentWebhookController::class, 'handle'])
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:600,1')
     ->name('webhooks.payment');

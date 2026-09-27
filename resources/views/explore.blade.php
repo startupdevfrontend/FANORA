@@ -1,6 +1,7 @@
 <x-layouts.app
     title="Explorar creators"
     description="Descubra creators de todas as categorias, busque por nome ou usuário e encontre seu próximo conteúdo exclusivo."
+    canonical="{{ route('explore') }}"
 >
 
     <section class="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500/10 via-purple-500/10 to-pink-500/10 p-6 sm:p-8 backdrop-blur-sm border border-white/10">

@@ -5,18 +5,20 @@
     <div class="relative mx-auto w-full max-w-md py-12">
         <div class="hero-gradient absolute inset-0 z-[-1]"></div>
         <div class="card glass-card p-8 shadow-2xl shadow-brand-magenta/5">
-            <img src="{{ asset('img/logo-text-dark.png') }}" alt="FANORA" class="mx-auto h-20 w-auto mb-2 drop-shadow-lg">
+            <div class="flex items-center justify-center font-black tracking-tighter text-4xl text-white mb-2">
+                FAN<span class="text-brand-magenta">ORA</span>
+            </div>
             <h1 class="text-2xl font-bold tracking-tight">Criar conta</h1>
             <p class="mt-2 text-sm text-brand-muted">Leva menos de um minuto. Somente maiores de 18 anos.</p>
 
             <form method="post" action="{{ route('register') }}" class="mt-6 space-y-5">
                 @csrf
 
-                <x-input name="name" label="Nome" placeholder="Nome completo" required />
-                <x-input name="username" label="Usuário" hint="letras minúsculas, sem espaços" required />
-                <x-input name="email" label="E-mail" type="email" placeholder="seu@email.com" required />
-                <x-input name="birth_date" label="Data de nascimento" type="date" hint="Você deve ter pelo menos 18 anos" required />
-                <x-input name="password" label="Senha" type="password" autocomplete="new-password" required />
+                <x-input name="name" label="Nome" placeholder="Seu nome completo ou nome artístico" hint="Como você será chamado(a) na plataforma." required />
+                <x-input name="username" label="Usuário" placeholder="ex: seunome" hint="Deve ser único, minúsculo e sem espaços." required />
+                <x-input name="email" label="E-mail" type="email" placeholder="seu@email.com" hint="Usado para login e notificações de vendas." required />
+                <x-input name="birth_date" label="Data de nascimento" type="date" hint="Você deve ter pelo menos 18 anos completos." required />
+                <x-input name="password" label="Senha" type="password" autocomplete="new-password" hint="No mínimo 8 caracteres." required />
                 <x-input name="password_confirmation" label="Confirmar senha" type="password" autocomplete="new-password" required />
 
                 <div class="relative overflow-hidden rounded-xl border-2 border-amber-500/70 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 p-4 backdrop-blur-sm">

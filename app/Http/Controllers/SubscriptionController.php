@@ -35,7 +35,11 @@ class SubscriptionController extends Controller
 
         $this->authorize('create', [Subscription::class, $creator]);
 
-        $this->subscriptions->subscribe(auth()->user(), $creator);
+        $subscription = $this->subscriptions->subscribe(auth()->user(), $creator);
+
+        if ($subscription->checkout_url) {
+            return redirect()->away($subscription->checkout_url);
+        }
 
         session()->flash('status', 'Solicitação de assinatura registrada. Aguardando confirmação do pagamento.');
 

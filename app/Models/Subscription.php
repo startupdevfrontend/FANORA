@@ -21,7 +21,7 @@ class Subscription extends Model
         'starts_at',
         'ends_at',
         'cancelled_at',
-        'gateway_transaction_id',
+        'gateway_transaction_id', 'checkout_url',
     ];
 
     protected function casts(): array

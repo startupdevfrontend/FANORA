@@ -16,6 +16,13 @@ use Illuminate\Support\Str;
  */
 class MediaService
 {
+    /**
+     * In-memory (per-request) existence cache to avoid repeated disk stats.
+     *
+     * @var array<string, bool>
+     */
+    protected static array $existsCache = [];
+
     public function __construct(protected AuditService $audit)
     {
     }
@@ -63,7 +70,11 @@ class MediaService
 
     public function exists(string $path): bool
     {
-        return filled($path) && Storage::disk('private')->exists($path);
+        if (blank($path)) {
+            return false;
+        }
+
+        return static::$existsCache[$path] ??= Storage::disk('private')->exists($path);
     }
 
     public function path(string $path): string
@@ -73,7 +84,7 @@ class MediaService
 
     public function avatarUrl(?string $path): string
     {
-        if (blank($path)) {
+        if (blank($path) || ! $this->exists($path)) {
             return '';
         }
 

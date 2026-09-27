@@ -26,4 +26,21 @@
             </url>
         @endif
     @endforeach
+
+    @foreach (\App\Models\Post::query()
+        ->where('status', 'published')
+        ->where('visibility', \App\Enums\PostVisibility::Public->value)
+        ->whereHas('user', fn ($u) => $u->where('is_active', true))
+        ->with('user')
+        ->limit(5000)
+        ->get() as $post)
+        @php($postUsername = $post->user->username ?? null)
+        @if ($postUsername)
+            <url>
+                <loc>{{ $baseUrl }}/posts/{{ $postUsername }}/{{ $post->id }}</loc>
+                <changefreq>weekly</changefreq>
+                <lastmod>{{ $post->published_at?->format('Y-m-d') }}</lastmod>
+            </url>
+        @endif
+    @endforeach
 </urlset>

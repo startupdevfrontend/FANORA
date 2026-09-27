@@ -5,7 +5,9 @@
     <div class="relative mx-auto w-full max-w-md py-12">
         <div class="hero-gradient absolute inset-0 z-[-1]"></div>
         <div class="card glass-card p-8 shadow-2xl shadow-brand-magenta/5">
-            <img src="{{ asset('img/logo-text-dark.png') }}" alt="FANORA" class="mx-auto h-20 w-auto mb-2 drop-shadow-lg">
+            <div class="flex items-center justify-center font-black tracking-tighter text-4xl text-white mb-2">
+                FAN<span class="text-brand-magenta">ORA</span>
+            </div>
             <h1 class="text-2xl font-bold tracking-tight">Entrar</h1>
             <p class="mt-2 text-sm text-brand-muted">Acesse sua conta para não perder nenhum conteúdo exclusivo.</p>
 

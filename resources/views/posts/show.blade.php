@@ -4,6 +4,26 @@
     :canonical="route('posts.show', [$post->user->username, $post])"
     :robots="$post->isExclusive() ? 'noindex, nofollow' : 'index, follow'"
 >
+    <x-slot:seo>
+        @php($firstMediaUrl = $post->media->isNotEmpty() ? ($mediaUrls[$post->media->first()->id] ?? null) : null)
+        @if ($firstMediaUrl && $canView)
+            <meta property="og:image" content="{{ $firstMediaUrl }}">
+            <meta property="og:type" content="article">
+        @endif
+        <script type="application/ld+json">
+        {!! json_encode(array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Article',
+            'headline' => $canView ? $post->body : 'Publicação exclusiva',
+            'author' => ['@type' => 'Person', 'name' => $post->user->name],
+            'datePublished' => $post->published_at?->toIso8601String(),
+            'dateModified' => $post->updated_at?->toIso8601String(),
+            'mainEntityOfPage' => route('posts.show', [$post->user->username, $post]),
+            'image' => $canView ? $firstMediaUrl : null,
+        ], fn ($value) => $value !== null && $value !== ''), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+        </script>
+    </x-slot:seo>
+
     <div class="mb-6 flex items-center gap-2">
         <a href="{{ route('creator.show', $post->user->username) }}" class="inline-flex items-center gap-2 text-sm font-medium text-brand-muted transition hover:text-white">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>

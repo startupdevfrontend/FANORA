@@ -1,4 +1,4 @@
-User-agent: *
+{!! 'User-agent: *' !!}
 Disallow: /admin
 Disallow: /feed
 Disallow: /subscriptions
@@ -11,7 +11,6 @@ Disallow: /creator/posts
 Disallow: /creator/subscribers
 Disallow: /creator/earnings
 Disallow: /creator/verification
-Disallow: /media/
 
 # Adult content classification notice for search engines.
 User-agent: Googlebot
@@ -22,6 +21,5 @@ Disallow: /notifications
 Disallow: /profile
 Disallow: /settings
 Disallow: /blocks
-Disallow: /media/
 
-Sitemap: /sitemap.xml
+Sitemap: {{ url('/sitemap.xml') }}

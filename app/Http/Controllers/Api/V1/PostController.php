@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\PostVisibility;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostStoreRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Services\AuditService;
 use App\Services\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PostController extends Controller
 {
@@ -17,38 +19,36 @@ class PostController extends Controller
     {
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
         $posts = Post::query()
             ->where('status', 'published')
             ->with(['user.profile', 'media'])
-            ->where(function ($q) {
-                $q->where('visibility', PostVisibility::Public->value);
-            })
-            ->orWhere(function ($q) use ($user) {
+            ->where(function ($query) use ($user) {
+                $query->where('visibility', PostVisibility::Public->value);
+
                 if (! $user) {
                     return;
                 }
 
-                $q->where('visibility', PostVisibility::SubscribersOnly->value)
-                    ->whereIn('user_id', $user->subscriptions()->where('status', 'active')->pluck('creator_id'));
+                $query->orWhere(function ($q) use ($user) {
+                    $q->where('visibility', PostVisibility::SubscribersOnly->value)
+                        ->whereIn('user_id', $user->subscriptions()->where('status', 'active')->pluck('creator_id'));
+                });
             })
             ->latest()
             ->paginate(15);
 
-        return response()->json($posts);
+        return PostResource::collection($posts);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(PostStoreRequest $request): JsonResponse
     {
         abort_unless($request->user()->isVerifiedCreator(), 403, 'Creator não verificado.');
 
-        $validated = $request->validate([
-            'body' => ['required', 'string', 'max:5000'],
-            'visibility' => ['required', 'in:public,subscribers_only'],
-        ]);
+        $validated = $request->validated();
 
         // SECURITY: privileged fields set explicitly
         $post = new Post();
@@ -61,6 +61,17 @@ class PostController extends Controller
 
         $this->audit->log($request->user(), 'post.created', $post);
 
-        return response()->json(['message' => 'Publicação criada.', 'post' => $post], 201);
+        return response()->json(['message' => 'Publicação criada.', 'post' => new PostResource($post)], 201);
+    }
+
+    public function show(Request $request, Post $post): JsonResponse
+    {
+        abort_unless($post->status === 'published', 404);
+
+        if ($post->visibility !== PostVisibility::Public) {
+            abort_unless($request->user() !== null && $request->user()->activeSubscriptionFor($post->user_id) !== null, 403, 'Conteúdo exclusivo para assinantes.');
+        }
+
+        return response()->json(new PostResource($post->load('media', 'user')));
     }
 }

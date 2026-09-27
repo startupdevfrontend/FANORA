@@ -43,7 +43,7 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/assets/private',
-            'serve' => false, // never serve directly; use signed temporaryUrl
+            'serve' => true, // signed temporaryUrl via storage.private route (ValidateSignature middleware)
             'visibility' => 'private',
             'throw' => false,
             'report' => false,

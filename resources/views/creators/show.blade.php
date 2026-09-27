@@ -7,6 +7,25 @@
 >
     <x-slot:seo>
         <meta property="og:profile:username" content="{{ $creator->username }}">
+        @if ($creator->profile?->avatar_path)
+            <meta property="og:image" content="{{ app(\App\Services\MediaService::class)->avatarUrl($creator->profile->avatar_path) }}">
+        @endif
+        <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            'name' => $creator->creatorProfile?->display_name ?? $creator->name,
+            'alternateName' => '@'.$creator->username,
+            'description' => $creator->creatorProfile?->tagline ?? null,
+            'url' => route('creator.show', $creator->username),
+            'sameAs' => collect([
+                $creator->creatorProfile?->instagram ? 'https://instagram.com/'.trim($creator->creatorProfile->instagram, '@') : null,
+                $creator->creatorProfile?->tiktok ? 'https://tiktok.com/@'.trim($creator->creatorProfile->tiktok, '@') : null,
+                $creator->creatorProfile?->twitter ? 'https://twitter.com/'.trim($creator->creatorProfile->twitter, '@') : null,
+                $creator->creatorProfile?->youtube ? 'https://youtube.com/@'.trim($creator->creatorProfile->youtube, '@') : null,
+            ])->filter()->values(),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+        </script>
     </x-slot:seo>
 
     <section class="relative overflow-hidden rounded-[2rem] border border-brand-border bg-brand-card">

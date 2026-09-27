@@ -2,7 +2,9 @@
     <div class="w-full px-4 py-14 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div class="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-10">
             <div class="md:col-span-1">
-                <img src="{{ asset('img/design-01.png') }}" alt="FANORA" class="h-8 w-8 shrink-0 object-contain aspect-square rounded-lg">
+                <div class="flex items-center font-black tracking-tighter text-lg text-white">
+                    FAN<span class="text-brand-magenta">ORA</span>
+                </div>
                 <p class="mt-4 text-sm font-bold tracking-widest text-brand-magenta/90 uppercase">SEU CONTEÚDO. SEU PÚBLICO. SEU ESPAÇO.</p>
                 <p class="mt-3 text-sm text-brand-muted/80">A plataforma para criadores que valorizam seu trabalho e seu público.</p>
             </div>

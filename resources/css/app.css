@@ -17,6 +17,18 @@
     --color-brand-purple: #7c3aed;
     --color-brand-purple-dark: #6d28d9;
     --color-brand-muted: #a3a3a3;
+
+    --color-brand-50: #fdf2f7;
+    --color-brand-100: #fce7f0;
+    --color-brand-200: #fbcfe2;
+    --color-brand-300: #f9a8c8;
+    --color-brand-400: #f472a6;
+    --color-brand-500: #e91e63;
+    --color-brand-600: #c2185b;
+    --color-brand-700: #be185d;
+    --color-brand-800: #9d174d;
+    --color-brand-900: #831843;
+    --color-brand-950: #500724;
 }
 
 @layer base {

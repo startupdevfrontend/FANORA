@@ -373,24 +373,24 @@ class AsaasGateway implements PaymentGatewayInterface
         if (! blank($expectedToken)) {
             if (blank($providedToken) || ! hash_equals((string) $expectedToken, (string) $providedToken)) {
                 Log::warning('AsaasGateway.webhook.invalid_token', [
-                    'headers' => $request->headers->all(),
                     'ip' => $request->ip(),
                 ]);
                 abort(403, 'Assinatura de webhook inválida.');
             }
         } else {
             Log::warning('AsaasGateway.webhook.no_token_configured', [
-                'hint' => 'Configure PAYMENT_WEBHOOK_SECRET / ASAAS_WEBHOOK_TOKEN em produção.',
+                'hint' => 'Configure PAYMENT_WEBHOOK_SECRET / ASAAS_WEBHOOK_TOKEN.',
                 'ip' => $request->ip(),
             ]);
-            // In production we still allow but log warning; strict enforcement
-            // can be enabled by setting a webhook token.
+
             if (! $this->isSandbox()) {
-                Log::warning('AsaasGateway.webhook.production_without_token', ['payload' => $request->all()]);
+                // Fail closed in production: a webhook without a configured token
+                // must never mutate financial state.
+                abort(503, 'Webhook não autenticado.');
             }
         }
 
-        $payload = $request->all();
+        $payload = $this->redact($request->all());
 
         Log::info('AsaasGateway.webhook.received', [
             'event' => $payload['event'] ?? $request->input('event'),
@@ -644,29 +644,33 @@ class AsaasGateway implements PaymentGatewayInterface
             'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED', 'PAYMENT_RECEIVED_IN_CASH',
             'PAYMENT_CONFIRMED_CASH', 'PAYMENT_CREDIT_CARD_CAPTURED' => 'subscription.paid',
 
-            'PAYMENT_CREATED', 'PAYMENT_AWAITING_PAYMENT', 'PAYMENT_UPDATED' => 'subscription.created',
+            'PAYMENT_REFUNDED', 'PAYMENT_REFUND_REQUESTED' => 'payment.refunded',
 
-            'PAYMENT_DELETED', 'PAYMENT_REFUNDED', 'PAYMENT_REFUND_REQUESTED',
-            'PAYMENT_CHARGEBACK_REQUESTED', 'PAYMENT_CHARGEBACK_DISPUTE',
-            'PAYMENT_OVERDUE', 'PAYMENT_DUNNING_REQUESTED', 'PAYMENT_DUNNING_RECEIVED',
+            // Overdue / dunning are not cancellations: the subscription stays
+            // eligible for reactivation. They only surface a payment that is late.
+            'PAYMENT_OVERDUE', 'PAYMENT_DUNNING_REQUESTED', 'PAYMENT_DUNNING_RECEIVED' => 'payment.overdue',
+
+            // Invalidated subcriptions revoke access.
             'SUBSCRIPTION_DELETED', 'SUBSCRIPTION_CANCELLED', 'SUBSCRIPTION_EXPIRED',
-            'SUBSCRIPTION_INACTIVATED', 'SUBSCRIPTION_UPDATED' => 'subscription.cancelled',
+            'SUBSCRIPTION_INACTIVATED' => 'subscription.cancelled',
 
-            // Generic subscription events that imply active payment
-            'SUBSCRIPTION_CREATED' => 'subscription.created',
+            // Charging back an existing payment must revoke access + revert earnings.
+            'PAYMENT_CHARGEBACK_REQUESTED', 'PAYMENT_CHARGEBACK_DISPUTE', 'PAYMENT_CHARGEBACK_DISPUTE_LOST' => 'payment.refunded',
+
+            // Informational events — never mutate state.
+            'PAYMENT_CREATED', 'PAYMENT_AWAITING_PAYMENT', 'PAYMENT_UPDATED',
+            'SUBSCRIPTION_CREATED', 'SUBSCRIPTION_UPDATED' => 'subscription.created',
+
             default => strtolower($asaasEvent),
         };
     }
 
     protected function resolveLocalSubscriptionId(Request $request, ?string $subscriptionGatewayId, ?string $paymentId, mixed $payment): ?int
     {
-        // Direct fanora id passed by our own subscription creation (externalReference)
-        $fromRequest = $request->input('data.subscription_id') ?? $request->input('subscription_id');
-        if (! blank($fromRequest) && is_numeric($fromRequest)) {
-            return (int) $fromRequest;
-        }
+        // SECURITY: never trust a client-supplied local id. Only resolve from
+        // gateway-provided ids that map to rows we created.
 
-        // Try externalReference lookup
+        // Try externalReference lookup (the string we set at creation time)
         $externalRef = $payment['externalReference'] ?? $request->input('externalReference');
         if (! blank($externalRef) && str_starts_with((string) $externalRef, 'fanora_subscription_')) {
             $id = (int) Str::after((string) $externalRef, 'fanora_subscription_');
@@ -759,10 +763,12 @@ class AsaasGateway implements PaymentGatewayInterface
      */
     protected function redact(array $data): array
     {
-        $sensitive = ['cpfCnpj', 'cpf', 'phone', 'mobilePhone', 'access_token', 'apiKey'];
-        foreach ($sensitive as $key) {
-            if (isset($data[$key])) {
+        $sensitive = ['cpfCnpj', 'cpf', 'phone', 'mobilePhone', 'access_token', 'apiKey', 'asaas-access-token', 'Asaas-Access-Token', 'X-AASAAS-WEBHOOK-TOKEN', 'X-FANORA-WEBHOOK-SECRET', 'Authorization', 'token'];
+        foreach ($data as $key => $value) {
+            if (in_array(strtolower((string) $key), array_map('strtolower', $sensitive), true)) {
                 $data[$key] = '***REDACTED***';
+            } elseif (is_array($value)) {
+                $data[$key] = $this->redact($value);
             }
         }
 

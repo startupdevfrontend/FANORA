@@ -47,7 +47,7 @@ Route::post('/contact', [LegalController::class, 'contactSubmit'])->name('contac
 
 // SEO files - cached for performance
 Route::get('/robots.txt', function () {
-    $content = \Illuminate\Support\Facades\Cache::remember('seo:robots.txt', 86400, fn () => file_get_contents(resource_path('seo/robots.txt')));
+    $content = \Illuminate\Support\Facades\Cache::remember('seo:robots.txt', 86400, fn () => view('seo.robots')->render());
 
     return response($content, 200, [
         'Content-Type' => 'text/plain',

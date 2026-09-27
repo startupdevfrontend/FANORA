@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CreatorProfileResource;
+use App\Http\Resources\PostResource;
+use App\Http\Resources\UserResource;
 use App\Models\CreatorProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +13,7 @@ use Illuminate\Http\Request;
 
 class CreatorController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $query = CreatorProfile::query()
             ->with(['user.profile', 'categories'])
@@ -30,7 +33,7 @@ class CreatorController extends Controller
             }
         }
 
-        return response()->json($query->paginate(15));
+        return CreatorProfileResource::collection($query->paginate(15));
     }
 
     public function show(string $username): JsonResponse
@@ -51,8 +54,8 @@ class CreatorController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'creator' => $user,
-            'posts' => $posts,
+            'creator' => new UserResource($user),
+            'posts' => PostResource::collection($posts),
         ]);
     }
 }

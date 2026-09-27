@@ -1,7 +1,7 @@
-@props(['variant' => 'primary', 'size' => 'md', 'icon' => null, 'iconPosition' => 'left', 'href' => null, 'type' => 'button', 'block' => false, 'data' => []])
+@props(['variant' => 'primary', 'size' => 'md', 'icon' => null, 'iconPosition' => 'left', 'href' => null, 'type' => 'button', 'block' => false, 'data' => [], 'disabled' => false, 'loading' => false])
 
 @php
-    $classes = 'btn base inline-flex items-center gap-2';
+    $classes = 'btn inline-flex items-center gap-2';
     $classes .= match ($variant) {
         'primary' => ' btn-primary',
         'accent' => ' btn-accent',
@@ -11,13 +11,14 @@
         default => ' btn-primary',
     };
     $classes .= match ($size) {
-        'xs' => ' btn-xs px-2.5 py-1',
-        'sm' => ' btn-sm px-3.5 py-1.5',
-        'md' => ' px-5 py-2.5',
-        'lg' => ' btn-lg px-7 py-3.5',
-        default => ' px-5 py-2.5',
+        'xs' => ' btn-xs',
+        'sm' => ' btn-sm',
+        'md' => ' px-5 py-2.5 text-sm',
+        'lg' => ' btn-lg',
+        default => ' px-5 py-2.5 text-sm',
     };
     $classes .= $block ? ' w-full justify-center' : '';
+    $classes .= $loading ? ' cursor-wait' : '';
 
     $iconSvg = match ($icon) {
         'star' => '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>',
@@ -48,16 +49,20 @@
     };
 
     $classes .= ' ' . $iconSizeClass;
+    $attributes = $attributes->class($classes);
+    $isDisabled = $disabled || $loading;
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" class="{{ $classes }}" @foreach ($data as $k => $v) data-{{ $k }}="{{ $v }}" @endforeach>
+    <a href="{{ $href }}" {{ $attributes }} @foreach ($data as $k => $v) data-{{ $k }}="{{ $v }}" @endforeach>
+        @if ($loading)<svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>@endif
         @if ($icon && $iconPosition === 'left'){!! $iconSvg !!}@endif
         {{ $slot }}
         @if ($icon && $iconPosition === 'right'){!! $iconSvg !!}@endif
     </a>
 @else
-    <button type="{{ $type }}" class="{{ $classes }}" @foreach ($data as $k => $v) data-{{ $k }}="{{ $v }}" @endforeach>
+    <button type="{{ $type }}" {{ $attributes }} @foreach ($data as $k => $v) data-{{ $k }}="{{ $v }}" @endforeach @if ($isDisabled) disabled aria-busy="{{ $loading ? 'true' : 'false' }}" @endif>
+        @if ($loading)<svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>@endif
         @if ($icon && $iconPosition === 'left'){!! $iconSvg !!}@endif
         {{ $slot }}
         @if ($icon && $iconPosition === 'right'){!! $iconSvg !!}@endif
